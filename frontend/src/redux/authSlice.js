@@ -1,0 +1,140 @@
+// src/redux/authSlice.js
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { authService } from '../services/authService';
+import { toast } from 'react-toastify';
+
+export const signup = createAsyncThunk('auth/signup', async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await authService.signup(payload);
+    return data.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || 'Signup failed');
+  }
+});
+
+export const login = createAsyncThunk('auth/login', async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await authService.login(payload);
+    return data.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || 'Invalid email or password');
+  }
+});
+
+export const logout = createAsyncThunk('auth/logout', async () => {
+  try {
+    await authService.logout();
+  } catch {
+    // Even if the network call fails, we still clear local state below.
+  }
+});
+
+// Called once on app load to see if a valid refresh cookie can silently
+// re-establish a session (so refreshing the page doesn't log the user out).
+export const restoreSession = createAsyncThunk('auth/restoreSession', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await authService.refreshToken();
+    const accessToken = data.data.accessToken;
+    const me = await authService.me();
+    return { accessToken, user: me.data.data.user };
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message);
+  }
+});
+
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const { data } = await authService.updateProfile(payload);
+      toast.success('Profile updated');
+      return data.data.user;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Could not update profile';
+      toast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const updateAccessToken = (token) => ({ type: 'auth/tokenRefreshed', payload: token });
+
+const authSlice = createSlice({
+  name: 'auth',
+  initialState: {
+    user: null,
+    accessToken: null,
+    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    bootstrapping: true, // true until restoreSession has resolved once
+    error: null,
+  },
+  reducers: {
+    tokenRefreshed: (state, action) => {
+      state.accessToken = action.payload;
+    },
+    sessionCleared: (state) => {
+      state.user = null;
+      state.accessToken = null;
+    },
+    setUser: (state, action) => {
+      state.user = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(signup.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(signup.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken;
+      })
+      .addCase(signup.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(login.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.user = null;
+        state.accessToken = null;
+      })
+      .addCase(restoreSession.pending, (state) => {
+        state.bootstrapping = true;
+      })
+      .addCase(restoreSession.fulfilled, (state, action) => {
+        state.bootstrapping = false;
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken;
+      })
+      .addCase(restoreSession.rejected, (state) => {
+        state.bootstrapping = false;
+        state.user = null;
+        state.accessToken = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
+      });
+  },
+});
+
+export const { tokenRefreshed, sessionCleared, setUser } = authSlice.actions;
+export default authSlice.reducer;
+
+// Small helper so components can fire a toast without importing react-toastify everywhere.
+export function notifyError(message) {
+  toast.error(message);
+}

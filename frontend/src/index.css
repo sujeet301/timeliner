@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Design tokens
+   Concept: a timetable / departure-board reading of a task planner — due
+   dates and countdowns are set in mono numerals like a schedule board,
+   headings in a technical grotesk, body copy in a plain humanist sans.
+   ========================================================================== */
+:root {
+  --color-bg: #f5f6f3;
+  --color-surface: #ffffff;
+  --color-surface-alt: #ecefe9;
+  --color-ink: #1c2321;
+  --color-ink-muted: #5b645f;
+  --color-border: #dbded6;
+
+  --color-primary: #2f5d62;
+  --color-primary-hover: #24494d;
+  --color-primary-soft: #e2ecec;
+
+  --color-urgent: #c1443c;
+  --color-urgent-soft: #f8e4e2;
+
+  --color-warn: #b3812c;
+  --color-warn-soft: #f5ecd8;
+
+  --color-success: #4f7d58;
+  --color-success-soft: #e3ede4;
+}
+
+.dark {
+  --color-bg: #14181a;
+  --color-surface: #1d2224;
+  --color-surface-alt: #242a2c;
+  --color-ink: #edefea;
+  --color-ink-muted: #9aa39d;
+  --color-border: #2b3234;
+
+  --color-primary: #6bb3b8;
+  --color-primary-hover: #86c5c9;
+  --color-primary-soft: #20393b;
+
+  --color-urgent: #e2685f;
+  --color-urgent-soft: #3a2320;
+
+  --color-warn: #e0ac52;
+  --color-warn-soft: #3a2f1a;
+
+  --color-success: #8fb897;
+  --color-success-soft: #223228;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Visible keyboard focus everywhere — accessibility floor, not decoration. */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Shimmer skeleton */
+.skeleton {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-surface-alt) 0px,
+    var(--color-border) 40px,
+    var(--color-surface-alt) 80px
+  );
+  background-size: 800px 100%;
+}
+
+/* Thin, timetable-style scrollbars */
+.thin-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 8px;
+}
