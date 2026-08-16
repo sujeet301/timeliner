@@ -21,6 +21,17 @@ export const login = createAsyncThunk('auth/login', async (payload, { rejectWith
   }
 });
 
+// `credential` is the Google ID token JWT handed back by Google Identity
+// Services' Sign-In button (see components/auth/GoogleSignInButton.jsx).
+export const googleLogin = createAsyncThunk('auth/googleLogin', async (credential, { rejectWithValue }) => {
+  try {
+    const { data } = await authService.googleLogin(credential);
+    return data.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || 'Google sign-in failed');
+  }
+});
+
 export const logout = createAsyncThunk('auth/logout', async () => {
   try {
     await authService.logout();
@@ -51,6 +62,21 @@ export const updateProfile = createAsyncThunk(
       return data.data.user;
     } catch (err) {
       const message = err.response?.data?.message || 'Could not update profile';
+      toast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const updateLeetcodeSettings = createAsyncThunk(
+  'auth/updateLeetcodeSettings',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const { data } = await authService.updateLeetcodeSettings(payload);
+      toast.success('LeetCode reminder settings saved');
+      return data.data.user;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Could not save LeetCode settings';
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -108,6 +134,19 @@ const authSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
+      .addCase(googleLogin.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken;
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.accessToken = null;
@@ -126,6 +165,9 @@ const authSlice = createSlice({
         state.accessToken = null;
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(updateLeetcodeSettings.fulfilled, (state, action) => {
         state.user = action.payload;
       });
   },

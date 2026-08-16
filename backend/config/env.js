@@ -69,6 +69,16 @@ module.exports = {
     fromNumber: process.env.TWILIO_FROM_NUMBER,
   },
 
+  google: {
+    // Not in REQUIRED_VARS — Google sign-in is optional. If unset, the
+    // /auth/google endpoint responds 501 instead of the server refusing to boot.
+    clientId: process.env.GOOGLE_CLIENT_ID || null,
+  },
+
+  leetcode: {
+    cronExpression: process.env.LEETCODE_REMINDER_CRON_EXPRESSION || '*/15 * * * *',
+  },
+
   scheduler: {
     cronExpression: process.env.REMINDER_CRON_EXPRESSION || '* * * * *',
     maxAttempts: parseInt(process.env.REMINDER_MAX_ATTEMPTS, 10) || 3,

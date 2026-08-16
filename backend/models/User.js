@@ -26,13 +26,29 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      // Not required for Google-only accounts — see googleId below.
+      required: function passwordRequired() {
+        return !this.googleId;
+      },
       minlength: 8,
       select: false, // never returned by default on queries
     },
     avatar: {
       type: String, // URL to an image
       default: null,
+    },
+
+    // --- Google Sign-In ---
+    // Set once a user has signed in with Google (either they registered via
+    // Google, or an existing email/password account was later linked). A
+    // sparse unique index means any number of documents can have googleId
+    // = null/absent without violating uniqueness — only real Google IDs
+    // are required to be unique.
+    googleId: {
+      type: String,
+      default: null,
+      unique: true,
+      sparse: true,
     },
 
     // --- Email verification ---
@@ -66,13 +82,30 @@ const userSchema = new mongoose.Schema(
       email: { type: Boolean, default: true },
       sms: { type: Boolean, default: false },
     },
+
+    // --- LeetCode daily-practice reminder ---
+    leetcode: {
+      username: { type: String, default: null, trim: true },
+      enabled: { type: Boolean, default: false },
+      // 24h "HH:mm" wall-clock time, interpreted in `timezone` below — the
+      // scheduler won't check/remind before this time each day.
+      reminderTime: { type: String, default: '20:00' },
+      // IANA timezone name (e.g. "America/New_York"). Defaults to UTC so a
+      // freshly-enabled reminder behaves predictably even before the user
+      // has picked their real zone in Settings.
+      timezone: { type: String, default: 'UTC' },
+      // 'yyyy-MM-dd' (in `timezone`) of the last day this user was already
+      // checked/reminded, so the scheduler only acts once per calendar day
+      // even though it runs every few minutes.
+      lastReminderSentDate: { type: String, default: null },
+    },
   },
   { timestamps: true }
 );
 
 // ---------- Hooks ----------
 userSchema.pre('save', async function hashPassword(next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next();
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
   next();
@@ -80,6 +113,7 @@ userSchema.pre('save', async function hashPassword(next) {
 
 // ---------- Instance methods ----------
 userSchema.methods.comparePassword = function comparePassword(candidate) {
+  if (!this.password) return Promise.resolve(false); // Google-only account — no local password to check
   return bcrypt.compare(candidate, this.password);
 };
 
@@ -113,7 +147,9 @@ userSchema.methods.toSafeJSON = function toSafeJSON() {
     avatar: this.avatar,
     isVerified: this.isVerified,
     phoneVerified: this.phoneVerified,
+    hasGoogleAuth: Boolean(this.googleId),
     notificationPrefs: this.notificationPrefs,
+    leetcode: this.leetcode,
     createdAt: this.createdAt,
   };
 };

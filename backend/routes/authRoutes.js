@@ -42,6 +42,14 @@ router.post(
   ctrl.login
 );
 
+router.post(
+  '/google',
+  authLimiter,
+  [body('credential').notEmpty().withMessage('Google credential is required')],
+  validate,
+  ctrl.googleLogin
+);
+
 router.post('/logout', ctrl.logout);
 router.post('/refresh-token', ctrl.refreshTokenHandler);
 router.get('/me', protect, ctrl.getMe);
@@ -92,5 +100,23 @@ router.post(
   validate,
   ctrl.verifyOtp
 );
+
+router.put(
+  '/leetcode-settings',
+  protect,
+  [
+    body('username').optional({ nullable: true }).isString().trim(),
+    body('enabled').optional().isBoolean(),
+    body('reminderTime')
+      .optional()
+      .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
+      .withMessage('reminderTime must be in 24h HH:mm format'),
+    body('timezone').optional().isString(),
+  ],
+  validate,
+  ctrl.updateLeetcodeSettings
+);
+
+router.get('/leetcode-status', protect, ctrl.getLeetcodeStatus);
 
 module.exports = router;

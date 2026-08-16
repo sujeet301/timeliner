@@ -2,6 +2,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const asyncHandler = require('express-async-handler');
+const { OAuth2Client } = require('google-auth-library');
 const env = require('../config/env');
 const ApiError = require('../utils/ApiError');
 const User = require('../models/User');
@@ -14,6 +15,8 @@ const {
 } = require('../utils/generateTokens');
 const { sendEmail } = require('../services/emailService');
 const { sendSMS } = require('../services/smsService');
+const { hasSolvedSince } = require('../services/leetcodeService');
+const { isValidTimezone, startOfTodayUtc } = require('../utils/timezone');
 
 // Issues a fresh access+refresh token pair, persists the refresh token hash
 // on the user (so it can be revoked), and sets the refresh cookie.
@@ -69,6 +72,68 @@ const login = asyncHandler(async (req, res) => {
     success: true,
     data: { user: user.toSafeJSON(), accessToken },
   });
+});
+
+let googleClient = null;
+function getGoogleClient() {
+  if (!env.google.clientId) return null;
+  if (!googleClient) googleClient = new OAuth2Client(env.google.clientId);
+  return googleClient;
+}
+
+// POST /api/auth/google
+// Accepts the `credential` (a signed ID token JWT) produced by Google
+// Identity Services' Sign-In button on the frontend. We verify it
+// server-side against Google's public keys and our own client ID — the
+// frontend never gets to assert a user's identity on its own, only Google's
+// signature does. On success we either log in the matching account or
+// create a new one (linking to an existing email/password account if one
+// already exists with the same address), then issue our own normal
+// access/refresh token pair exactly like email/password login.
+const googleLogin = asyncHandler(async (req, res) => {
+  const client = getGoogleClient();
+  if (!client) {
+    throw new ApiError(501, 'Google sign-in is not configured on this server');
+  }
+
+  const { credential } = req.body;
+
+  let payload;
+  try {
+    const ticket = await client.verifyIdToken({ idToken: credential, audience: env.google.clientId });
+    payload = ticket.getPayload();
+  } catch {
+    throw new ApiError(401, 'Invalid Google credential');
+  }
+
+  if (!payload?.email) {
+    throw new ApiError(401, 'Google credential did not include an email address');
+  }
+  if (!payload.email_verified) {
+    throw new ApiError(401, "Google reports this account's email is not verified");
+  }
+
+  let user = await User.findOne({ $or: [{ googleId: payload.sub }, { email: payload.email.toLowerCase() }] });
+
+  if (!user) {
+    user = await User.create({
+      name: payload.name || payload.email.split('@')[0],
+      email: payload.email,
+      googleId: payload.sub,
+      avatar: payload.picture || null,
+      isVerified: true, // Google already verified this email address
+    });
+  } else if (!user.googleId) {
+    // An existing email/password account signing in with Google for the
+    // first time — link the accounts rather than creating a duplicate.
+    user.googleId = payload.sub;
+    user.isVerified = true;
+    if (!user.avatar) user.avatar = payload.picture || null;
+    await user.save({ validateBeforeSave: false });
+  }
+
+  const accessToken = await issueTokens(user, res);
+  res.json({ success: true, data: { user: user.toSafeJSON(), accessToken } });
 });
 
 // POST /api/auth/logout
@@ -240,10 +305,50 @@ const verifyOtp = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Phone number verified' });
 });
 
+// PUT /api/auth/leetcode-settings
+// Updates the daily LeetCode-practice reminder: which username to check,
+// whether it's on, what local time to fire at, and which timezone that
+// time is in. Changing any of these clears lastReminderSentDate so the
+// scheduler re-evaluates today instead of trusting a now-stale dedupe flag.
+const updateLeetcodeSettings = asyncHandler(async (req, res) => {
+  const { username, enabled, reminderTime, timezone } = req.body;
+  const user = await User.findById(req.user._id);
+
+  if (username !== undefined) user.leetcode.username = username || null;
+  if (enabled !== undefined) user.leetcode.enabled = enabled;
+  if (reminderTime !== undefined) user.leetcode.reminderTime = reminderTime;
+  if (timezone !== undefined) {
+    if (!isValidTimezone(timezone)) throw new ApiError(400, 'Unrecognized timezone');
+    user.leetcode.timezone = timezone;
+  }
+  user.leetcode.lastReminderSentDate = null;
+
+  await user.save({ validateBeforeSave: false });
+  res.json({ success: true, data: { user: user.toSafeJSON() } });
+});
+
+// GET /api/auth/leetcode-status
+// Read-only "check now" used by the Settings page so a user can confirm
+// their username is correct and see today's status immediately, instead of
+// waiting for the next scheduler tick. Never sends a notification or
+// touches lastReminderSentDate.
+const getLeetcodeStatus = asyncHandler(async (req, res) => {
+  const { username, timezone } = req.user.leetcode;
+  if (!username) throw new ApiError(400, 'Set a LeetCode username first');
+
+  try {
+    const solvedToday = await hasSolvedSince(username, startOfTodayUtc(timezone || 'UTC'));
+    res.json({ success: true, data: { solvedToday } });
+  } catch (err) {
+    throw new ApiError(502, `Could not reach LeetCode: ${err.message}`);
+  }
+});
+
 module.exports = {
   signup,
   login,
   logout,
+  googleLogin,
   refreshTokenHandler,
   getMe,
   updateProfile,
@@ -251,4 +356,6 @@ module.exports = {
   resetPassword,
   requestPhoneOtp,
   verifyOtp,
+  updateLeetcodeSettings,
+  getLeetcodeStatus,
 };

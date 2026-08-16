@@ -11,6 +11,7 @@ const env = require('./config/env');
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const { startScheduler } = require('./services/schedulerService');
+const { startLeetcodeReminderScheduler } = require('./services/leetcodeReminderService');
 
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
@@ -60,6 +61,7 @@ app.use(errorHandler);
 async function start() {
   await connectDB();
   startScheduler();
+  startLeetcodeReminderScheduler();
 
   const server = app.listen(env.port, () => {
     // eslint-disable-next-line no-console

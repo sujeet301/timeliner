@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import AuthLayout from '../components/layout/AuthLayout';
 import { Input } from '../components/common/FormFields';
 import Button from '../components/common/Button';
+import GoogleSignInButton from '../components/auth/GoogleSignInButton';
+import OrDivider from '../components/auth/OrDivider';
 import { signup } from '../redux/authSlice';
 import { signupSchema } from '../utils/validationSchemas';
 
@@ -58,6 +60,10 @@ export default function SignupPage() {
           Create account
         </Button>
       </form>
+
+      <OrDivider />
+      <GoogleSignInButton />
+
       <p className="mt-5 text-center text-sm text-ink-muted">
         Already have an account?{' '}
         <Link to="/login" className="font-medium text-primary hover:underline">

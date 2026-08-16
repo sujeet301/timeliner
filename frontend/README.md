@@ -31,11 +31,12 @@ React Hook Form + Zod · date-fns · react-toastify · Recharts · lucide-react
 src/
 ├── components/
 │   ├── layout/       # Navbar, Sidebar, AppLayout, AuthLayout
-│   ├── tasks/         # TaskCard, TaskForm, FilterBar, KanbanBoard, TaskDetailModal
-│   ├── reminders/      # ReminderForm, RecurrenceBuilder, ReminderList
-│   ├── calendar/        # CalendarView (month grid)
-│   └── common/           # Button, FormFields, Modal, Badge, EmptyState, Skeletons,
-│                          # ProtectedRoute, ThemeToggle
+│   ├── auth/          # GoogleSignInButton, OrDivider
+│   ├── tasks/           # TaskCard, TaskForm, FilterBar, KanbanBoard, TaskDetailModal
+│   ├── reminders/         # ReminderForm, RecurrenceBuilder, ReminderList
+│   ├── calendar/            # CalendarView (month grid)
+│   └── common/                # Button, FormFields, Modal, Badge, EmptyState, Skeletons,
+│                               # ProtectedRoute, ThemeToggle
 ├── pages/               # One component per route
 ├── redux/                # authSlice, taskSlice, reminderSlice, uiSlice, store
 ├── services/              # apiClient (axios + interceptors), authService, taskService, reminderService
@@ -57,6 +58,22 @@ src/
   `ProtectedRoute` redirects to `/login`.
 - `App.jsx` dispatches `restoreSession()` once on load so refreshing the
   page doesn't log you out as long as the refresh cookie is still valid.
+
+### Google Sign-In
+
+`components/auth/GoogleSignInButton.jsx` loads Google Identity Services
+(`accounts.google.com/gsi/client`) and renders **Google's own button** —
+this app never builds a custom "Sign in with Google" widget or talks to
+Google's API directly. On success, GIS hands back a signed `credential` (an
+ID token), which is dispatched via the `googleLogin` thunk to
+`POST /auth/google`; the backend verifies it and returns the same
+`{ user, accessToken }` shape as normal login, so everything downstream
+(Redux state, `ProtectedRoute`, the refresh flow) treats it identically to a
+password login.
+
+If `VITE_GOOGLE_CLIENT_ID` isn't set, the button renders a disabled
+placeholder instead of throwing — the app is fully usable with just
+email/password in that case.
 
 ## 5. Design direction
 
@@ -91,10 +108,29 @@ real app running in the user's own browser, not an embedded artifact).
 | Soft delete / trash / undo | `pages/TrashPage.jsx` + `utils/toastHelpers.jsx`'s undo toast |
 | Dark/light theme | `hooks/useTheme.js`, `components/common/ThemeToggle.jsx` |
 | Profile & settings, phone OTP, notification prefs | `pages/SettingsPage.jsx` |
+| Google Sign-In | `components/auth/GoogleSignInButton.jsx`, `redux/authSlice.js#googleLogin` |
+| LeetCode daily reminder | `pages/SettingsPage.jsx` (settings + "check now" preview) |
 | Loading skeletons / empty states | `components/common/Skeletons.jsx`, `EmptyState.jsx` |
 | Toast confirmations | `react-toastify`, wired inside the Redux thunks in `redux/*Slice.js` |
 
-## 7. What's deliberately out of scope
+## 7. Google Sign-In and LeetCode reminder (post-Phase-2 additions)
+
+Two features added after the original Phase 2 build, on request — neither
+was in the original spec:
+
+- **Google Sign-In** — see the "Google Sign-In" subsection under Auth flow
+  above. Requires `VITE_GOOGLE_CLIENT_ID` in `.env` (see `.env.example`);
+  degrades to a disabled placeholder button if unset.
+- **LeetCode daily reminder** — a section in `SettingsPage.jsx` where you set
+  a LeetCode username, enable the reminder, and pick a time + timezone
+  (auto-filled from the browser via `Intl.DateTimeFormat().resolvedOptions().timeZone`,
+  editable). A "Check now" button calls `GET /auth/leetcode-status` for
+  immediate feedback ("Already solved today" / "Nothing solved yet") without
+  waiting for the backend's periodic check. The actual reminder delivery
+  (email/SMS) happens entirely server-side — see `backend/README.md`'s "The
+  LeetCode daily reminder" section for how that scheduler works.
+
+## 8. What's deliberately out of scope
 
 Consistent with Phase 1's scoping: Web Push notifications, PWA/offline
 support, natural-language task entry, CSV/PDF export, and shared/
@@ -102,7 +138,7 @@ collaborative lists were left out as optional "great to have" extras rather
 than core Phase 2 deliverables. The Reminder channel already reserves a
 `'push'` value end to end if you want to add Web Push later.
 
-## 8. A couple of small backend additions made along the way
+## 9. A couple of small backend additions made along the way
 
 While wiring this UI up to the Phase 1 API, three small gaps became
 apparent and were closed in the backend (all documented in
