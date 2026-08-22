@@ -1,6 +1,6 @@
 // src/components/layout/Navbar.jsx
 import { useState, useRef, useEffect } from 'react';
-import { Menu, ChevronDown, LogOut, User as UserIcon, Clock3 } from 'lucide-react';
+import { Menu, ChevronDown, LogOut, User as UserIcon, Clock3, Flame } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setMobileNavOpen } from '../../redux/uiSlice';
@@ -39,7 +39,7 @@ export default function Navbar() {
           <Menu size={20} />
         </button>
         <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-white">
+          <span className="gradient-brand flex h-7 w-7 items-center justify-center rounded-md text-white shadow-sm">
             <Clock3 size={16} />
           </span>
           <span className="font-display text-base font-semibold tracking-tight text-ink">
@@ -72,6 +72,16 @@ export default function Navbar() {
               >
                 <UserIcon size={15} /> Profile &amp; settings
               </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate('/leetcode');
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink hover:bg-surface-alt"
+              >
+                <Flame size={15} className="text-flame" /> LeetCode reminder
+              </button>
+              <div className="my-1 border-t border-border" />
               <button
                 onClick={handleLogout}
                 className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-urgent hover:bg-surface-alt"

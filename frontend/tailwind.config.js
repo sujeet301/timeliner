@@ -28,6 +28,10 @@ export default {
           DEFAULT: 'var(--color-success)',
           soft: 'var(--color-success-soft)',
         },
+        flame: {
+          DEFAULT: 'var(--color-flame)',
+          soft: 'var(--color-flame-soft)',
+        },
       },
       fontFamily: {
         display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],

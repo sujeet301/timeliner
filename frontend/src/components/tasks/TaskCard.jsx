@@ -4,8 +4,17 @@ import clsx from 'clsx';
 import Badge from '../common/Badge';
 import { getUrgency } from '../../utils/dateHelpers';
 import { PRIORITY_COLOR } from '../../utils/constants';
+import { getCategoryColor } from '../../utils/categoryColors';
+import { useTheme } from '../../hooks/useTheme';
+
+const PRIORITY_BORDER = {
+  low: 'border-l-success',
+  medium: 'border-l-warn',
+  high: 'border-l-urgent',
+};
 
 export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDelete, draggable, onDragStart }) {
+  const { theme } = useTheme();
   const urgency = getUrgency(task.dueDate, task.status);
   const doneSubtasks = task.subtasks?.filter((s) => s.done).length || 0;
   const totalSubtasks = task.subtasks?.length || 0;
@@ -16,7 +25,10 @@ export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDel
       draggable={draggable}
       onDragStart={onDragStart}
       onClick={() => onOpen(task)}
-      className="group flex cursor-pointer flex-col gap-3 rounded-card border border-border bg-surface p-4 shadow-card transition-shadow hover:shadow-popover"
+      className={clsx(
+        'group flex cursor-pointer flex-col gap-3 rounded-card border border-l-4 border-border bg-surface p-4 shadow-card transition-shadow hover:shadow-popover',
+        PRIORITY_BORDER[task.priority]
+      )}
     >
       <div className="flex items-start gap-3">
         <button
@@ -68,9 +80,11 @@ export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDel
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 pl-8">
+      <div className="flex flex-wrap items-center gap-1.5 pl-8">
         <Badge tone={PRIORITY_COLOR[task.priority]}>{task.priority}</Badge>
-        {task.category && <Badge tone="muted">{task.category}</Badge>}
+        {task.category && (
+          <Badge color={getCategoryColor(task.category, theme === 'dark')}>{task.category}</Badge>
+        )}
         {task.dueDate && (
           <Badge tone={urgency.tone} mono>
             {urgency.label}
@@ -89,9 +103,9 @@ export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDel
           </span>
         )}
         {task.tags?.map((tag) => (
-          <span key={tag} className="text-xs text-ink-muted">
+          <Badge key={tag} color={getCategoryColor(tag, theme === 'dark')} className="!px-2 !py-0 text-[11px]">
             #{tag}
-          </span>
+          </Badge>
         ))}
       </div>
     </div>

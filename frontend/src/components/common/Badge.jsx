@@ -6,18 +6,20 @@ const TONES = {
   warn: 'bg-warn-soft text-warn',
   success: 'bg-success-soft text-success',
   primary: 'bg-primary-soft text-primary',
+  flame: 'bg-flame-soft text-flame',
   muted: 'bg-surface-alt text-ink-muted',
 };
 
-export default function Badge({ children, tone = 'muted', className, mono = false }) {
+export default function Badge({ children, tone = 'muted', className, mono = false, color }) {
   return (
     <span
       className={clsx(
         'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
         mono && 'font-mono tracking-tight',
-        TONES[tone] || TONES.muted,
+        !color && (TONES[tone] || TONES.muted),
         className
       )}
+      style={color ? { backgroundColor: color.bg, color: color.fg } : undefined}
     >
       {children}
     </span>

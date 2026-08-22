@@ -37,11 +37,12 @@ src/
 │   ├── calendar/            # CalendarView (month grid)
 │   └── common/                # Button, FormFields, Modal, Badge, EmptyState, Skeletons,
 │                               # ProtectedRoute, ThemeToggle
-├── pages/               # One component per route
+├── pages/               # One component per route (incl. LeetCodePage)
 ├── redux/                # authSlice, taskSlice, reminderSlice, uiSlice, store
 ├── services/              # apiClient (axios + interceptors), authService, taskService, reminderService
 ├── hooks/                  # useAuth, useTheme
-└── utils/                   # constants, dateHelpers, validationSchemas (Zod), toastHelpers
+└── utils/                   # constants, dateHelpers, validationSchemas (Zod),
+                              # toastHelpers, categoryColors
 ```
 
 ## 4. Auth flow (matches the backend exactly)
@@ -92,6 +93,17 @@ Theme preference is toggled via `ThemeToggle` (also in Settings), applied by
 `hooks/useTheme.js`, and persisted to `localStorage` (safe here — this is a
 real app running in the user's own browser, not an embedded artifact).
 
+The palette itself leans into that transit-map idea with bold, distinct
+hues rather than a single muted accent: an indigo `primary`, plus semantic
+`urgent`/`warn`/`success`, plus a warm `flame` accent reserved for
+streak/highlight moments (the LeetCode reminder, gradient buttons, the
+brand mark). `utils/categoryColors.js` deterministically maps each
+category/tag name to one of eight colors (hashed, so the same name always
+gets the same color) — the same "color as identity" idea applied to a
+user's own categories, the way different lines get their own color on a
+transit map. Priority also gets a quick-scan left border stripe on each
+`TaskCard`.
+
 ## 6. Where each spec requirement lives
 
 | Requirement | Where |
@@ -109,7 +121,7 @@ real app running in the user's own browser, not an embedded artifact).
 | Dark/light theme | `hooks/useTheme.js`, `components/common/ThemeToggle.jsx` |
 | Profile & settings, phone OTP, notification prefs | `pages/SettingsPage.jsx` |
 | Google Sign-In | `components/auth/GoogleSignInButton.jsx`, `redux/authSlice.js#googleLogin` |
-| LeetCode daily reminder | `pages/SettingsPage.jsx` (settings + "check now" preview) |
+| LeetCode daily reminder | `pages/LeetCodePage.jsx` (own page, linked from the navbar's right-side account menu and from a card in Settings) |
 | Loading skeletons / empty states | `components/common/Skeletons.jsx`, `EmptyState.jsx` |
 | Toast confirmations | `react-toastify`, wired inside the Redux thunks in `redux/*Slice.js` |
 
@@ -121,14 +133,27 @@ was in the original spec:
 - **Google Sign-In** — see the "Google Sign-In" subsection under Auth flow
   above. Requires `VITE_GOOGLE_CLIENT_ID` in `.env` (see `.env.example`);
   degrades to a disabled placeholder button if unset.
-- **LeetCode daily reminder** — a section in `SettingsPage.jsx` where you set
-  a LeetCode username, enable the reminder, and pick a time + timezone
-  (auto-filled from the browser via `Intl.DateTimeFormat().resolvedOptions().timeZone`,
-  editable). A "Check now" button calls `GET /auth/leetcode-status` for
-  immediate feedback ("Already solved today" / "Nothing solved yet") without
-  waiting for the backend's periodic check. The actual reminder delivery
-  (email/SMS) happens entirely server-side — see `backend/README.md`'s "The
-  LeetCode daily reminder" section for how that scheduler works.
+- **LeetCode daily reminder** — now its own page, `pages/LeetCodePage.jsx`,
+  reachable from the flame icon in the navbar's right-side account dropdown
+  (next to "Profile & settings") and from a card at the bottom of Settings.
+  It shows a live status hero (checks `GET /auth/leetcode-status` on load if
+  a username is already saved) above the same username/enable/time/timezone
+  settings that used to live inline in Settings — pulled out into their own
+  page since the feature has real content of its own (a status you check
+  in on), not just a preference to set once.
+
+### A more colorful visual pass
+
+The palette moved from a muted single-accent look to the bolder,
+higher-saturation "transit map" system described in the Design direction
+section above — indigo primary, vivid semantic colors, and the new `flame`
+accent. Buttons, the navbar logo, and the auth pages picked up gradient/
+color treatments (`.gradient-brand` in `index.css`, decorative blurred
+blobs in `AuthLayout.jsx`), `TaskCard` got a priority-colored left border
+and hashed per-category/tag chip colors (`utils/categoryColors.js`), the
+sidebar's active item got a colored accent border, and the Analytics stat
+cards/chart bar now each carry their own color instead of repeating the
+same one.
 
 ## 8. What's deliberately out of scope
 

@@ -4,13 +4,23 @@ import ThemeToggle from '../common/ThemeToggle';
 
 export default function AuthLayout({ title, subtitle, children }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg px-4 py-10">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg px-4 py-10">
+      {/* Decorative color blobs — purely atmospheric, kept behind everything and out of the tab order */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary opacity-20 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-flame opacity-20 blur-3xl"
+      />
+
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <div className="w-full max-w-sm">
+      <div className="relative w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-2 text-center">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+          <span className="gradient-brand flex h-10 w-10 items-center justify-center rounded-lg text-white shadow-sm">
             <Clock3 size={20} />
           </span>
           <h1 className="font-display text-xl font-semibold text-ink">{title}</h1>

@@ -4,52 +4,63 @@
 
 /* ==========================================================================
    Design tokens
-   Concept: a timetable / departure-board reading of a task planner — due
-   dates and countdowns are set in mono numerals like a schedule board,
-   headings in a technical grotesk, body copy in a plain humanist sans.
+   Concept: a timetable / departure-board reading of a task planner, colored
+   like a transit line map — bold, distinct hues used the way subway lines
+   use color to be told apart at a glance, rather than a muted single-accent
+   palette. Due dates and countdowns are set in mono numerals like a
+   schedule board, headings in a technical grotesk, body copy in a plain
+   humanist sans.
    ========================================================================== */
 :root {
-  --color-bg: #f5f6f3;
+  --color-bg: #f5f5fc;
   --color-surface: #ffffff;
-  --color-surface-alt: #ecefe9;
-  --color-ink: #1c2321;
-  --color-ink-muted: #5b645f;
-  --color-border: #dbded6;
+  --color-surface-alt: #edeefb;
+  --color-ink: #1a1b2e;
+  --color-ink-muted: #62627e;
+  --color-border: #dfe0f2;
 
-  --color-primary: #2f5d62;
-  --color-primary-hover: #24494d;
-  --color-primary-soft: #e2ecec;
+  --color-primary: #5b5bef;
+  --color-primary-hover: #4646d1;
+  --color-primary-soft: #e6e6fd;
 
-  --color-urgent: #c1443c;
-  --color-urgent-soft: #f8e4e2;
+  --color-urgent: #ef4444;
+  --color-urgent-soft: #fde3e3;
 
-  --color-warn: #b3812c;
-  --color-warn-soft: #f5ecd8;
+  --color-warn: #e8940c;
+  --color-warn-soft: #fbecd0;
 
-  --color-success: #4f7d58;
-  --color-success-soft: #e3ede4;
+  --color-success: #12a878;
+  --color-success-soft: #d8f4e9;
+
+  /* "Flame" — the streak/highlight accent, used for the LeetCode reminder
+     and other places that want a warm pop against the cool indigo primary. */
+  --color-flame: #ff6b4a;
+  --color-flame-soft: #ffe4dc;
 }
 
 .dark {
-  --color-bg: #14181a;
-  --color-surface: #1d2224;
-  --color-surface-alt: #242a2c;
-  --color-ink: #edefea;
-  --color-ink-muted: #9aa39d;
-  --color-border: #2b3234;
+  --color-bg: #131322;
+  --color-surface: #1b1b30;
+  --color-surface-alt: #23233c;
+  --color-ink: #edeef9;
+  --color-ink-muted: #9797b8;
+  --color-border: #2d2d4a;
 
-  --color-primary: #6bb3b8;
-  --color-primary-hover: #86c5c9;
-  --color-primary-soft: #20393b;
+  --color-primary: #9192f7;
+  --color-primary-hover: #aaabf9;
+  --color-primary-soft: #2a2a54;
 
-  --color-urgent: #e2685f;
-  --color-urgent-soft: #3a2320;
+  --color-urgent: #f87171;
+  --color-urgent-soft: #3c1f22;
 
-  --color-warn: #e0ac52;
-  --color-warn-soft: #3a2f1a;
+  --color-warn: #f5a623;
+  --color-warn-soft: #3c2e12;
 
-  --color-success: #8fb897;
-  --color-success-soft: #223228;
+  --color-success: #34d399;
+  --color-success-soft: #123227;
+
+  --color-flame: #ff8a68;
+  --color-flame-soft: #3a2318;
 }
 
 * {
@@ -93,6 +104,11 @@ h3,
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* Shared brand gradient — logo badge, primary buttons, hero accents */
+.gradient-brand {
+  background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-flame) 150%);
 }
 
 /* Shimmer skeleton */

@@ -20,6 +20,7 @@ import CalendarPage from './pages/CalendarPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import TrashPage from './pages/TrashPage';
 import SettingsPage from './pages/SettingsPage';
+import LeetCodePage from './pages/LeetCodePage';
 import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/trash" element={<TrashPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/leetcode" element={<LeetCodePage />} />
           </Route>
         </Route>
 

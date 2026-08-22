@@ -3,14 +3,15 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDispatch } from 'react-redux';
-import { ShieldCheck, ShieldAlert, Code2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ShieldCheck, ShieldAlert, Flame, ChevronRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Input, Toggle } from '../components/common/FormFields';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
 import ThemeToggle from '../components/common/ThemeToggle';
 import { useAuth } from '../hooks/useAuth';
-import { updateProfile, updateLeetcodeSettings, setUser } from '../redux/authSlice';
+import { updateProfile, setUser } from '../redux/authSlice';
 import { authService } from '../services/authService';
 import { profileSchema } from '../utils/validationSchemas';
 
@@ -26,6 +27,7 @@ function SectionCard({ title, description, children }) {
 
 export default function SettingsPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -34,18 +36,6 @@ export default function SettingsPage() {
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [phoneBusy, setPhoneBusy] = useState(false);
-
-  // LeetCode daily-reminder sub-flow
-  const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const [leetcodeUsername, setLeetcodeUsername] = useState(user?.leetcode?.username || '');
-  const [leetcodeEnabled, setLeetcodeEnabled] = useState(user?.leetcode?.enabled || false);
-  const [leetcodeTime, setLeetcodeTime] = useState(user?.leetcode?.reminderTime || '20:00');
-  const [leetcodeTimezone, setLeetcodeTimezone] = useState(
-    user?.leetcode?.timezone && user.leetcode.timezone !== 'UTC' ? user.leetcode.timezone : browserTimezone
-  );
-  const [savingLeetcode, setSavingLeetcode] = useState(false);
-  const [checkingNow, setCheckingNow] = useState(false);
-  const [leetcodeStatus, setLeetcodeStatus] = useState(null);
 
   const {
     register,
@@ -108,46 +98,6 @@ export default function SettingsPage() {
       dispatch(setUser(result));
     } catch {
       // toast already shown
-    }
-  };
-
-  const saveLeetcodeSettings = async () => {
-    setSavingLeetcode(true);
-    try {
-      await dispatch(
-        updateLeetcodeSettings({
-          username: leetcodeUsername.trim() || null,
-          enabled: leetcodeEnabled,
-          reminderTime: leetcodeTime,
-          timezone: leetcodeTimezone,
-        })
-      ).unwrap();
-    } catch {
-      // toast already shown
-    } finally {
-      setSavingLeetcode(false);
-    }
-  };
-
-  const checkLeetcodeNow = async () => {
-    if (!leetcodeUsername.trim()) {
-      toast.error('Enter a LeetCode username first');
-      return;
-    }
-    setCheckingNow(true);
-    setLeetcodeStatus(null);
-    try {
-      // Make sure the backend is checking against whatever's currently in
-      // the form, not a stale saved username, before asking for status.
-      await dispatch(
-        updateLeetcodeSettings({ username: leetcodeUsername.trim(), timezone: leetcodeTimezone })
-      ).unwrap();
-      const { data } = await authService.getLeetcodeStatus();
-      setLeetcodeStatus(data.data);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Could not check LeetCode status');
-    } finally {
-      setCheckingNow(false);
     }
   };
 
@@ -244,84 +194,25 @@ export default function SettingsPage() {
         </div>
       </SectionCard>
 
-      <SectionCard
-        title="LeetCode daily reminder"
-        description="Nudges you by email/SMS if you haven't solved a problem yet today."
+      <button
+        onClick={() => navigate('/leetcode')}
+        className="flex items-center justify-between gap-4 rounded-card border border-border bg-gradient-to-r from-flame-soft to-surface p-5 text-left shadow-card transition-shadow hover:shadow-popover"
       >
-        <div className="flex flex-col gap-4">
-          <Toggle checked={leetcodeEnabled} onChange={setLeetcodeEnabled} label="Enable daily reminder" />
-
-          <Input
-            label="LeetCode username"
-            id="leetcodeUsername"
-            placeholder="e.g. johndoe123"
-            value={leetcodeUsername}
-            onChange={(e) => {
-              setLeetcodeUsername(e.target.value);
-              setLeetcodeStatus(null);
-            }}
-            hint="Must be a public LeetCode profile"
-          />
-
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="Remind me at"
-              id="leetcodeTime"
-              type="time"
-              value={leetcodeTime}
-              onChange={(e) => setLeetcodeTime(e.target.value)}
-            />
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="leetcodeTimezone" className="text-sm font-medium text-ink">
-                Timezone
-              </label>
-              <div className="flex gap-1.5">
-                <input
-                  id="leetcodeTimezone"
-                  value={leetcodeTimezone}
-                  onChange={(e) => setLeetcodeTimezone(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => setLeetcodeTimezone(browserTimezone)}
-                className="self-start text-xs text-primary hover:underline"
-              >
-                Use my current timezone ({browserTimezone})
-              </button>
-            </div>
-          </div>
-
-          {!user?.notificationPrefs?.email && !(user?.notificationPrefs?.sms && user?.phoneVerified) && (
-            <p className="text-xs text-warn">
-              Turn on Email or verified SMS reminders above so this reminder has a way to reach you.
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-flame-soft text-flame">
+            <Flame size={20} />
+          </span>
+          <div>
+            <h2 className="font-display text-base font-semibold text-ink">LeetCode daily reminder</h2>
+            <p className="text-sm text-ink-muted">
+              {user?.leetcode?.enabled
+                ? `On \u00b7 reminds you at ${user.leetcode.reminderTime}`
+                : 'Off \u00b7 set a username and turn it on'}
             </p>
-          )}
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="secondary" onClick={checkLeetcodeNow} loading={checkingNow}>
-              <Code2 size={14} /> Check now
-            </Button>
-            <Button onClick={saveLeetcodeSettings} loading={savingLeetcode}>
-              Save
-            </Button>
-            {leetcodeStatus && (
-              <Badge tone={leetcodeStatus.solvedToday ? 'success' : 'warn'}>
-                {leetcodeStatus.solvedToday ? (
-                  <>
-                    <CheckCircle2 size={12} className="mr-1 inline" /> Already solved today
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle size={12} className="mr-1 inline" /> Nothing solved yet today
-                  </>
-                )}
-              </Badge>
-            )}
           </div>
         </div>
-      </SectionCard>
+        <ChevronRight size={18} className="shrink-0 text-ink-muted" />
+      </button>
 
       <SectionCard title="Appearance">
         <div className="flex items-center justify-between">

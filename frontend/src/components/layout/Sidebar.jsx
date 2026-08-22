@@ -24,10 +24,10 @@ function NavItems({ onNavigate }) {
           onClick={onNavigate}
           className={({ isActive }) =>
             clsx(
-              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              'flex items-center gap-3 rounded-lg border-l-2 px-3 py-2 text-sm font-medium transition-colors',
               isActive
-                ? 'bg-primary-soft text-primary'
-                : 'text-ink-muted hover:bg-surface-alt hover:text-ink'
+                ? 'border-l-primary bg-primary-soft text-primary'
+                : 'border-l-transparent text-ink-muted hover:bg-surface-alt hover:text-ink'
             )
           }
         >

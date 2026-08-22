@@ -7,10 +7,17 @@ import { subDays, eachDayOfInterval, isSameDay, format, startOfDay } from 'date-
 import { fetchTasks } from '../redux/taskSlice';
 import { LineSkeleton } from '../components/common/Skeletons';
 
-function StatCard({ icon: Icon, label, value, sub }) {
+const TONE_CLASSES = {
+  primary: 'bg-primary-soft text-primary',
+  success: 'bg-success-soft text-success',
+  flame: 'bg-flame-soft text-flame',
+  warn: 'bg-warn-soft text-warn',
+};
+
+function StatCard({ icon: Icon, label, value, sub, tone = 'primary' }) {
   return (
     <div className="flex items-center gap-3 rounded-card border border-border bg-surface p-4 shadow-card">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${TONE_CLASSES[tone]}`}>
         <Icon size={18} />
       </span>
       <div>
@@ -74,14 +81,15 @@ export default function AnalyticsPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <StatCard icon={ListTodo} label="Total tasks" value={stats.total} />
-            <StatCard icon={CheckCircle2} label="Completed" value={stats.completedCount} />
-            <StatCard icon={TrendingUp} label="Completion rate" value={`${stats.completionRate}%`} />
+            <StatCard icon={ListTodo} label="Total tasks" value={stats.total} tone="primary" />
+            <StatCard icon={CheckCircle2} label="Completed" value={stats.completedCount} tone="success" />
+            <StatCard icon={TrendingUp} label="Completion rate" value={`${stats.completionRate}%`} tone="warn" />
             <StatCard
               icon={Flame}
               label="Current streak"
               value={stats.streak}
               sub={stats.streak === 1 ? 'day' : 'days'}
+              tone="flame"
             />
           </div>
 
@@ -90,6 +98,12 @@ export default function AnalyticsPage() {
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.weekly}>
+                  <defs>
+                    <linearGradient id="completedBarGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--color-primary)" />
+                      <stop offset="100%" stopColor="var(--color-flame)" />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
                   <XAxis
                     dataKey="day"
@@ -113,7 +127,7 @@ export default function AnalyticsPage() {
                     }}
                     cursor={{ fill: 'var(--color-surface-alt)' }}
                   />
-                  <Bar dataKey="completed" fill="var(--color-primary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                  <Bar dataKey="completed" fill="url(#completedBarGradient)" radius={[4, 4, 0, 0]} maxBarSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
