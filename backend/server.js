@@ -23,7 +23,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: env.clientOrigin,
+    origin: env.CLIENT_ORIGIN,
     credentials: true, // required so the httpOnly refresh-token cookie is sent/received
   })
 );
