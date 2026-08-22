@@ -23,7 +23,13 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: env.clientOrigin,
+    origin(origin, callback) {
+      // No Origin header at all (curl, server-to-server, some mobile
+      // clients) — nothing to check against, so let it through.
+      if (!origin) return callback(null, true);
+      if (env.clientOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`CORS: origin "${origin}" is not in CLIENT_ORIGIN`));
+    },
     credentials: true, // required so the httpOnly refresh-token cookie is sent/received
   })
 );

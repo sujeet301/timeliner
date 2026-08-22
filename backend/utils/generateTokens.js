@@ -24,18 +24,35 @@ function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
+// Cookie attributes depend on the deployment shape:
+//   - In production, the frontend and backend are commonly on different
+//     origins entirely (e.g. two separate Render/Vercel/Netlify services).
+//     A cookie sent on a cross-site XHR/fetch request MUST be
+//     `SameSite=None; Secure` — `Strict` or `Lax` are silently never sent
+//     back on cross-site requests at all, which looks exactly like "the
+//     refresh token doesn't exist" (a 401 on every refresh attempt) even
+//     though login succeeded and the cookie was nominally set.
+//   - Locally, frontend (localhost:5173) and backend (localhost:5000) are
+//     different ports but the same site, so `Lax` over plain HTTP works
+//     fine and doesn't require HTTPS.
+function refreshCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: env.isProduction, // Secure is REQUIRED whenever sameSite is 'none'
+    sameSite: env.isProduction ? 'none' : 'lax',
+    path: '/api/auth', // only sent to auth routes (refresh/logout)
+  };
+}
+
 function setRefreshTokenCookie(res, refreshToken) {
   res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: env.isProduction, // requires HTTPS in production
-    sameSite: 'strict',
+    ...refreshCookieOptions(),
     maxAge: env.jwt.refreshCookieMaxAgeMs,
-    path: '/api/auth', // only sent to auth routes (refresh/logout)
   });
 }
 
 function clearRefreshTokenCookie(res) {
-  res.clearCookie('refreshToken', { path: '/api/auth' });
+  res.clearCookie('refreshToken', refreshCookieOptions());
 }
 
 module.exports = {

@@ -37,7 +37,13 @@ module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
   isProduction: process.env.NODE_ENV === 'production',
   port: parseInt(process.env.PORT, 10) || 5000,
-  clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  // Comma-separated list, e.g. "https://app.example.com,https://staging.example.com"
+  // — lets you register more than one deployed frontend (prod + preview/staging)
+  // without a code change.
+  clientOrigins: (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 
   mongoUri: requireEnv('MONGO_URI'),
 

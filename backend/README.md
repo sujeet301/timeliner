@@ -92,7 +92,41 @@ against.
 If `GOOGLE_CLIENT_ID` isn't set, the endpoint responds `501 Not configured`
 instead of the whole server refusing to boot — Google sign-in is optional.
 
-## 4. The reminder scheduler — how it works
+## 4. Deploying frontend and backend on separate domains
+
+If your frontend and backend are deployed as two separate services (e.g.
+two Render/Vercel/Netlify apps, each with their own domain) — as opposed to
+one serving the other from the same origin — there are two things that
+**must** both be correct, or login will appear to work but the refresh
+token will silently never function (session dies after the access token's
+15-minute lifetime, or on any page reload):
+
+1. **`CLIENT_ORIGIN`** on the backend must exactly match the frontend's
+   deployed origin (scheme + host, no trailing slash) — e.g.
+   `CLIENT_ORIGIN=https://your-frontend.onrender.com`. It accepts a
+   comma-separated list if you have more than one (prod + a preview URL).
+   A mismatch here causes the browser to block the request entirely with a
+   CORS error, before your app code ever sees it.
+2. **The refresh-token cookie's `SameSite`/`Secure` attributes**
+   (`utils/generateTokens.js`) are set based on `NODE_ENV`:
+   `SameSite=None; Secure` in production, `SameSite=Lax` (no `Secure`) in
+   development. This matters because a cookie set with `SameSite=Strict`
+   or `Lax` is **never sent back on a cross-site request** — the browser
+   will happily store it, but silently drop it from every future request to
+   a different origin. That looks exactly like "the refresh token doesn't
+   exist": login still succeeds (the access token comes back in the JSON
+   body, independent of cookies), so the app feels like it's working right
+   up until the access token expires or the page reloads, at which point
+   `POST /auth/refresh-token` 401s forever. `SameSite=None` requires
+   `Secure`, which in turn requires HTTPS — true automatically on Render's
+   `*.onrender.com` domains, so this "just works" as long as `NODE_ENV=production`
+   is set on the deployed backend (most PaaS providers set this
+   automatically, but it's worth double-checking).
+
+If you ever see `POST /api/auth/refresh-token` returning 401 in the browser
+console right after a successful login, check these two things first.
+
+## 5. The reminder scheduler — how it works
 
 This is the core piece of the assignment, so it's worth spelling out.
 
@@ -135,7 +169,7 @@ forward (by `minutes` or to an explicit `until` time) and resets `status` to
 > mentioned as an alternative in the spec) so only one instance claims each
 > job.
 
-## 5. The LeetCode daily reminder — how it works
+## 6. The LeetCode daily reminder — how it works
 
 A separate, smaller cron job (`services/leetcodeReminderService.js`, interval
 set by `LEETCODE_REMINDER_CRON_EXPRESSION`, default every 15 minutes — a
@@ -177,7 +211,7 @@ notification or touches `lastReminderSentDate`.
 > as best-effort — if LeetCode changes that endpoint, `leetcodeService.js`
 > is the one place that would need updating.
 
-## 6. API overview
+## 7. API overview
 
 All routes are prefixed with `/api`. Protected routes require
 `Authorization: Bearer <accessToken>`.
@@ -250,7 +284,7 @@ request. Both are fully additive and don't change any existing behavior:
 - New dependencies: `google-auth-library`, `date-fns-tz`.
 - New env vars: `GOOGLE_CLIENT_ID`, `LEETCODE_REMINDER_CRON_EXPRESSION`.
 
-## 7. Security measures in place
+## 8. Security measures in place
 
 - Passwords hashed with bcrypt (cost factor 12), never stored/returned in plaintext.
 - `helmet` for standard security headers, `cors` restricted to `CLIENT_ORIGIN`.
@@ -261,7 +295,7 @@ request. Both are fully additive and don't change any existing behavior:
 - Centralized error handler normalizes Mongoose cast/validation/duplicate-key errors into clean 400/409 responses and never leaks stack traces outside development.
 - Google credentials are verified server-side against Google's public keys and a fixed `audience` (our `GOOGLE_CLIENT_ID`) — a forged or mismatched-audience token is rejected before any account is touched.
 
-## 8. What's deliberately out of scope for Phase 1
+## 9. What's deliberately out of scope for Phase 1
 
 Per the brief, these "great to have" items are frontend-heavy or clearly
 optional extras and were left for a later pass so Phase 1 stays focused and
