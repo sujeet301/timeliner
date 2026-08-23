@@ -1,12 +1,13 @@
 // src/components/layout/Sidebar.jsx
 import { NavLink } from 'react-router-dom';
 import clsx from 'clsx';
-import { LayoutList, CalendarDays, BarChart3, Trash2, Settings, X } from 'lucide-react';
+import { LayoutList, CalendarDays, BarChart3, Trash2, Settings, X ,Flame } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setMobileNavOpen } from '../../redux/uiSlice';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: LayoutList, end: true },
+  { to: '/leetcode', label: 'LeetCode Reminder', icon: Flame },
   { to: '/calendar', label: 'Calendar', icon: CalendarDays },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/trash', label: 'Trash', icon: Trash2 },
