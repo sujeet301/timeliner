@@ -70,7 +70,7 @@ export default function TaskForm({ initialTask, onSubmit, onCancel, submitting }
         {...register('description')}
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Controller
           name="priority"
           control={control}
@@ -87,7 +87,7 @@ export default function TaskForm({ initialTask, onSubmit, onCancel, submitting }
         <Input label="Due date" id="dueDate" type="datetime-local" error={errors.dueDate?.message} {...register('dueDate')} />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input label="Category" id="category" placeholder="Work" {...register('category')} />
         <Input label="Tags" id="tags" placeholder="finance, urgent" hint="Comma-separated" {...register('tags')} />
       </div>

@@ -83,7 +83,9 @@ export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDel
       <div className="flex flex-wrap items-center gap-1.5 pl-8">
         <Badge tone={PRIORITY_COLOR[task.priority]}>{task.priority}</Badge>
         {task.category && (
-          <Badge color={getCategoryColor(task.category, theme === 'dark')}>{task.category}</Badge>
+          <Badge color={getCategoryColor(task.category, theme === 'dark')} className="max-w-[8rem] truncate">
+            {task.category}
+          </Badge>
         )}
         {task.dueDate && (
           <Badge tone={urgency.tone} mono>
@@ -103,7 +105,11 @@ export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDel
           </span>
         )}
         {task.tags?.map((tag) => (
-          <Badge key={tag} color={getCategoryColor(tag, theme === 'dark')} className="!px-2 !py-0 text-[11px]">
+          <Badge
+            key={tag}
+            color={getCategoryColor(tag, theme === 'dark')}
+            className="max-w-[7rem] truncate !px-2 !py-0 text-[11px]"
+          >
             #{tag}
           </Badge>
         ))}

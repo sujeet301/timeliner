@@ -101,7 +101,7 @@ export default function DashboardPage() {
             {pagination.total} task{pagination.total === 1 ? '' : 's'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-border bg-surface p-0.5">
             <button
               onClick={() => changeView('list')}
@@ -110,7 +110,7 @@ export default function DashboardPage() {
                 view === 'list' ? 'bg-primary text-white' : 'text-ink-muted hover:text-ink'
               )}
             >
-              <LayoutList size={14} /> List
+              <LayoutList size={14} /> <span className="hidden xs:inline">List</span>
             </button>
             <button
               onClick={() => changeView('board')}
@@ -119,11 +119,11 @@ export default function DashboardPage() {
                 view === 'board' ? 'bg-primary text-white' : 'text-ink-muted hover:text-ink'
               )}
             >
-              <KanbanSquare size={14} /> Board
+              <KanbanSquare size={14} /> <span className="hidden xs:inline">Board</span>
             </button>
           </div>
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus size={16} /> New task
+            <Plus size={16} /> <span className="hidden xs:inline">New task</span>
           </Button>
         </div>
       </div>

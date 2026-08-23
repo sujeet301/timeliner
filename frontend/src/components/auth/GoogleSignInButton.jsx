@@ -40,6 +40,23 @@ export default function GoogleSignInButton() {
   const { theme } = useTheme();
   const containerRef = useRef(null);
   const [scriptError, setScriptError] = useState(false);
+  const [width, setWidth] = useState(320);
+
+  // GIS's renderButton wants a fixed pixel width — there's no "100%" option —
+  // so we measure the actual container width ourselves and re-render on any
+  // resize (window resize, orientation change, sidebar toggling, etc.)
+  // instead of hardcoding a value that overflows narrow phone screens.
+  useEffect(() => {
+    if (!containerRef.current) return undefined;
+
+    const el = containerRef.current;
+    const observer = new ResizeObserver((entries) => {
+      const measured = entries[0]?.contentRect.width;
+      if (measured) setWidth(Math.floor(Math.min(Math.max(measured, 180), 400)));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!CLIENT_ID) return; // unconfigured — render the placeholder below instead
@@ -57,12 +74,12 @@ export default function GoogleSignInButton() {
           },
         });
 
-        containerRef.current.innerHTML = ''; // clear before re-render (e.g. on theme change)
+        containerRef.current.innerHTML = ''; // clear before re-render (e.g. on theme/width change)
         window.google.accounts.id.renderButton(containerRef.current, {
           type: 'standard',
           theme: theme === 'dark' ? 'filled_black' : 'outline',
           size: 'large',
-          width: 320,
+          width,
           text: 'continue_with',
           shape: 'rectangular',
         });
@@ -74,7 +91,7 @@ export default function GoogleSignInButton() {
     return () => {
       cancelled = true;
     };
-  }, [dispatch, theme]);
+  }, [dispatch, theme, width]);
 
   if (!CLIENT_ID) {
     return (

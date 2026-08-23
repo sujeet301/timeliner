@@ -138,7 +138,7 @@ export default function LeetCodePage() {
             >
               {status.solvedToday ? <CheckCircle2 size={28} /> : <Flame size={28} />}
             </span>
-            <div>
+            <div className="min-w-0">
               <p className="font-display text-lg font-semibold text-ink">
                 {status.solvedToday ? "You've solved one today \ud83c\udf89" : 'Nothing solved yet today'}
               </p>
@@ -178,9 +178,9 @@ export default function LeetCodePage() {
             hint="Must be a public LeetCode profile"
           />
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input label="Remind me at" id="leetcodeTime" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
-            <div className="flex flex-col gap-1.5">
+            <div className="flex min-w-0 flex-col gap-1.5">
               <label htmlFor="leetcodeTimezone" className="text-sm font-medium text-ink">
                 Timezone
               </label>
@@ -193,7 +193,7 @@ export default function LeetCodePage() {
               <button
                 type="button"
                 onClick={() => setTimezone(browserTimezone)}
-                className="self-start text-xs text-primary hover:underline"
+                className="self-start break-words text-left text-xs text-primary hover:underline"
               >
                 Use my current timezone ({browserTimezone})
               </button>

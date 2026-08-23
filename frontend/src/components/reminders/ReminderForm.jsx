@@ -101,24 +101,26 @@ export default function ReminderForm({ task, onSubmit, onCancel, submitting }) {
         </div>
 
         {scheduleMode === 'offset' ? (
-          <div className="flex items-end gap-2">
-            <Input
-              label="Amount"
-              id="offsetAmount"
-              type="number"
-              min={1}
-              className="w-24"
-              error={errors.offsetAmount?.message}
-              {...register('offsetAmount')}
-            />
-            <Select id="offsetUnit" className="mb-[1px]" {...register('offsetUnit')}>
-              {OFFSET_UNIT_OPTIONS.map((u) => (
-                <option key={u.value} value={u.value}>
-                  {u.label}
-                </option>
-              ))}
-            </Select>
-            <span className="pb-2 text-sm text-ink-muted">before due date</span>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-end gap-2">
+              <Input
+                label="Amount"
+                id="offsetAmount"
+                type="number"
+                min={1}
+                className="w-20 shrink-0"
+                error={errors.offsetAmount?.message}
+                {...register('offsetAmount')}
+              />
+              <Select id="offsetUnit" className="mb-[1px] min-w-0 flex-1" {...register('offsetUnit')}>
+                {OFFSET_UNIT_OPTIONS.map((u) => (
+                  <option key={u.value} value={u.value}>
+                    {u.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <p className="text-xs text-ink-muted">before the task&apos;s due date</p>
           </div>
         ) : (
           <Input

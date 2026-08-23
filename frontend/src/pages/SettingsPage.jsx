@@ -158,7 +158,7 @@ export default function SettingsPage() {
           )}
 
           {otpSent && (
-            <div className="flex items-end gap-2">
+            <div className="flex flex-wrap items-end gap-2">
               <Input
                 label="Verification code"
                 id="otp"
@@ -166,7 +166,7 @@ export default function SettingsPage() {
                 maxLength={6}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="w-40"
+                className="w-28 sm:w-40"
               />
               <Button onClick={verifyOtpCode} loading={phoneBusy}>
                 Verify
@@ -196,15 +196,15 @@ export default function SettingsPage() {
 
       <button
         onClick={() => navigate('/leetcode')}
-        className="flex items-center justify-between gap-4 rounded-card border border-border bg-gradient-to-r from-flame-soft to-surface p-5 text-left shadow-card transition-shadow hover:shadow-popover"
+        className="flex w-full items-center justify-between gap-3 rounded-card border border-border bg-gradient-to-r from-flame-soft to-surface p-4 text-left shadow-card transition-shadow hover:shadow-popover sm:p-5"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-flame-soft text-flame">
             <Flame size={20} />
           </span>
-          <div>
-            <h2 className="font-display text-base font-semibold text-ink">LeetCode daily reminder</h2>
-            <p className="text-sm text-ink-muted">
+          <div className="min-w-0">
+            <h2 className="truncate font-display text-base font-semibold text-ink">LeetCode daily reminder</h2>
+            <p className="truncate text-sm text-ink-muted">
               {user?.leetcode?.enabled
                 ? `On \u00b7 reminds you at ${user.leetcode.reminderTime}`
                 : 'Off \u00b7 set a username and turn it on'}

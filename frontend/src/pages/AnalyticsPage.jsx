@@ -20,10 +20,10 @@ function StatCard({ icon: Icon, label, value, sub, tone = 'primary' }) {
       <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${TONE_CLASSES[tone]}`}>
         <Icon size={18} />
       </span>
-      <div>
-        <p className="font-mono text-xl font-semibold text-ink">{value}</p>
-        <p className="text-xs text-ink-muted">{label}</p>
-        {sub && <p className="text-xs text-ink-muted">{sub}</p>}
+      <div className="min-w-0">
+        <p className="truncate font-mono text-xl font-semibold text-ink">{value}</p>
+        <p className="truncate text-xs text-ink-muted">{label}</p>
+        {sub && <p className="truncate text-xs text-ink-muted">{sub}</p>}
       </div>
     </div>
   );

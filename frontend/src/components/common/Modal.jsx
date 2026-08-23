@@ -40,17 +40,17 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
         className={`relative w-full ${widths[size]} sm:rounded-card bg-surface shadow-popover animate-slide-up
           max-h-full sm:max-h-[90vh] overflow-y-auto thin-scroll outline-none`}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface px-5 py-4">
-          <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3 sm:px-5 sm:py-4">
+          <h2 className="min-w-0 flex-1 truncate font-display text-lg font-semibold text-ink">{title}</h2>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="rounded-md p-1 text-ink-muted hover:bg-surface-alt hover:text-ink"
+            className="shrink-0 rounded-md p-1 text-ink-muted hover:bg-surface-alt hover:text-ink"
           >
             <X size={18} />
           </button>
         </div>
-        <div className="px-5 py-5">{children}</div>
+        <div className="px-4 py-4 sm:px-5 sm:py-5">{children}</div>
       </div>
     </div>,
     document.body
