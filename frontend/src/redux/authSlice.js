@@ -42,10 +42,21 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 
 // Called once on app load to see if a valid refresh cookie can silently
 // re-establish a session (so refreshing the page doesn't log the user out).
-export const restoreSession = createAsyncThunk('auth/restoreSession', async (_, { rejectWithValue }) => {
+//
+// IMPORTANT: apiClient's request interceptor reads the access token from the
+// Redux store (via registerAuthHooks in services/apiClient.js), not from a
+// local variable. A thunk's return value only reaches the store *after* the
+// whole thunk resolves — so if we called authService.me() here using just
+// the local `accessToken` variable, that follow-up request would still go
+// out with whatever (stale/missing) token was in the store, 401, and the
+// session would look like it never got restored at all. Dispatching
+// `tokenRefreshed` immediately makes the new token available to the
+// interceptor in time for the very next request.
+export const restoreSession = createAsyncThunk('auth/restoreSession', async (_, { rejectWithValue, dispatch }) => {
   try {
     const { data } = await authService.refreshToken();
     const accessToken = data.data.accessToken;
+    dispatch(tokenRefreshed(accessToken));
     const me = await authService.me();
     return { accessToken, user: me.data.data.user };
   } catch (err) {
