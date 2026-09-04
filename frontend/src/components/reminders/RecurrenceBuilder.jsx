@@ -5,23 +5,16 @@ import { REPEAT_OPTIONS, WEEKDAYS } from '../../utils/constants';
 
 export default function RecurrenceBuilder({ register, watch, setValue, errors }) {
   const repeatType = watch('repeatType');
-
   const selectedDays = watch('daysOfWeek') || [];
   const toggleDay = (day) => {
-    const next = selectedDays.includes(day)
-      ? selectedDays.filter((d) => d !== day)
-      : [...selectedDays, day].sort();
+    const next = selectedDays.includes(day) ? selectedDays.filter((d) => d !== day) : [...selectedDays, day].sort();
     setValue('daysOfWeek', next);
   };
 
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface-alt/50 p-3">
       <Select label="Repeat" id="repeatType" {...register('repeatType')}>
-        {REPEAT_OPTIONS.map((r) => (
-          <option key={r.value} value={r.value}>
-            {r.label}
-          </option>
-        ))}
+        {REPEAT_OPTIONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
       </Select>
 
       {repeatType === 'weekly' && (
@@ -33,12 +26,7 @@ export default function RecurrenceBuilder({ register, watch, setValue, errors })
                 key={d.value}
                 type="button"
                 onClick={() => toggleDay(d.value)}
-                className={clsx(
-                  'h-8 w-10 rounded-md border text-xs font-medium transition-colors',
-                  selectedDays.includes(d.value)
-                    ? 'border-primary bg-primary text-white'
-                    : 'border-border bg-surface text-ink-muted hover:text-ink'
-                )}
+                className={clsx('h-8 w-10 rounded-md border text-xs font-medium transition-colors', selectedDays.includes(d.value) ? 'border-primary bg-primary text-white' : 'border-border bg-surface text-ink-muted hover:text-ink')}
               >
                 {d.label}
               </button>
@@ -49,24 +37,10 @@ export default function RecurrenceBuilder({ register, watch, setValue, errors })
       )}
 
       {repeatType === 'custom' && (
-        <Input
-          label="Repeat every N days"
-          id="repeatInterval"
-          type="number"
-          min={1}
-          error={errors.repeatInterval?.message}
-          {...register('repeatInterval')}
-        />
+        <Input label="Repeat every N days" id="repeatInterval" type="number" min={1} error={errors.repeatInterval?.message} {...register('repeatInterval')} />
       )}
 
-      {repeatType !== 'none' && (
-        <Input
-          label="Stop repeating after (optional)"
-          id="endDate"
-          type="datetime-local"
-          {...register('endDate')}
-        />
-      )}
+      {repeatType !== 'none' && <Input label="Stop repeating after (optional)" id="endDate" type="datetime-local" {...register('endDate')} />}
     </div>
   );
 }

@@ -12,14 +12,7 @@ import Modal from '../components/common/Modal';
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import { TaskListSkeleton } from '../components/common/Skeletons';
-import {
-  fetchTasks,
-  setFilters,
-  createTask,
-  updateTaskStatus,
-  softDeleteTask,
-  restoreTask,
-} from '../redux/taskSlice';
+import { fetchTasks, setFilters, createTask, updateTaskStatus, softDeleteTask, restoreTask } from '../redux/taskSlice';
 import { showUndoToast } from '../utils/toastHelpers';
 
 export default function DashboardPage() {
@@ -31,12 +24,9 @@ export default function DashboardPage() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [searchInput, setSearchInput] = useState(filters.search);
 
-  // Debounce the free-text search so we're not firing a request per keystroke.
   useEffect(() => {
     const t = setTimeout(() => {
-      if (searchInput !== filters.search) {
-        dispatch(setFilters({ ...filters, search: searchInput, page: 1 }));
-      }
+      if (searchInput !== filters.search) dispatch(setFilters({ ...filters, search: searchInput, page: 1 }));
     }, 350);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -46,16 +36,10 @@ export default function DashboardPage() {
     dispatch(fetchTasks(filters));
   }, [dispatch, filters]);
 
-  const handleFilterChange = useCallback(
-    (patch) => {
-      dispatch(setFilters({ ...filters, ...patch, page: 1 }));
-    },
-    [dispatch, filters]
-  );
+  const handleFilterChange = useCallback((patch) => { dispatch(setFilters({ ...filters, ...patch, page: 1 })); }, [dispatch, filters]);
 
   const changeView = (nextView) => {
     setView(nextView);
-    // Kanban reads better with more tasks visible at once than the paginated list default.
     dispatch(setFilters({ ...filters, page: 1, limit: nextView === 'board' ? 100 : 20 }));
   };
 
@@ -65,19 +49,14 @@ export default function DashboardPage() {
       await dispatch(createTask(payload)).unwrap();
       setCreateOpen(false);
     } catch {
-      // toast already shown by the thunk
+      // toast already shown
     } finally {
       setCreating(false);
     }
   };
 
-  const handleToggleComplete = (task) => {
-    dispatch(updateTaskStatus({ id: task._id, status: task.status === 'completed' ? 'pending' : 'completed' }));
-  };
-
-  const handleStatusChange = (taskId, status) => {
-    dispatch(updateTaskStatus({ id: taskId, status }));
-  };
+  const handleToggleComplete = (task) => dispatch(updateTaskStatus({ id: task._id, status: task.status === 'completed' ? 'pending' : 'completed' }));
+  const handleStatusChange = (taskId, status) => dispatch(updateTaskStatus({ id: taskId, status }));
 
   const handleDelete = async (task) => {
     await dispatch(softDeleteTask(task._id));
@@ -88,7 +67,6 @@ export default function DashboardPage() {
   };
 
   const openDetail = (task) => setSelectedTask(task);
-
   const isEmpty = status === 'succeeded' && items.length === 0;
   const isLoadingFirstPage = status === 'loading' && items.length === 0;
 
@@ -97,28 +75,14 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold text-ink">Dashboard</h1>
-          <p className="text-sm text-ink-muted">
-            {pagination.total} task{pagination.total === 1 ? '' : 's'}
-          </p>
+          <p className="text-sm text-ink-muted">{pagination.total} task{pagination.total === 1 ? '' : 's'}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-border bg-surface p-0.5">
-            <button
-              onClick={() => changeView('list')}
-              className={clsx(
-                'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors',
-                view === 'list' ? 'bg-primary text-white' : 'text-ink-muted hover:text-ink'
-              )}
-            >
+            <button onClick={() => changeView('list')} className={clsx('flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors', view === 'list' ? 'bg-primary text-white' : 'text-ink-muted hover:text-ink')}>
               <LayoutList size={14} /> <span className="hidden xs:inline">List</span>
             </button>
-            <button
-              onClick={() => changeView('board')}
-              className={clsx(
-                'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors',
-                view === 'board' ? 'bg-primary text-white' : 'text-ink-muted hover:text-ink'
-              )}
-            >
+            <button onClick={() => changeView('board')} className={clsx('flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors', view === 'board' ? 'bg-primary text-white' : 'text-ink-muted hover:text-ink')}>
               <KanbanSquare size={14} /> <span className="hidden xs:inline">Board</span>
             </button>
           </div>
@@ -128,13 +92,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <FilterBar
-        filters={{ ...filters, search: searchInput }}
-        onChange={(patch) => {
-          if ('search' in patch) setSearchInput(patch.search);
-          else handleFilterChange(patch);
-        }}
-      />
+      <FilterBar filters={{ ...filters, search: searchInput }} onChange={(patch) => { if ('search' in patch) setSearchInput(patch.search); else handleFilterChange(patch); }} />
 
       {isLoadingFirstPage && <TaskListSkeleton />}
 
@@ -143,61 +101,27 @@ export default function DashboardPage() {
           icon={ClipboardList}
           title="No tasks match these filters"
           description="Try clearing your search or filters, or create a new task."
-          action={
-            <Button variant="secondary" onClick={() => setCreateOpen(true)}>
-              <Plus size={14} /> New task
-            </Button>
-          }
+          action={<Button variant="secondary" onClick={() => setCreateOpen(true)}><Plus size={14} /> New task</Button>}
         />
       )}
 
       {!isLoadingFirstPage && items.length > 0 && view === 'list' && (
         <div className="flex flex-col gap-2.5">
           {items.map((task) => (
-            <TaskCard
-              key={task._id}
-              task={task}
-              onOpen={openDetail}
-              onEdit={openDetail}
-              onDelete={handleDelete}
-              onToggleComplete={handleToggleComplete}
-            />
+            <TaskCard key={task._id} task={task} onOpen={openDetail} onEdit={openDetail} onDelete={handleDelete} onToggleComplete={handleToggleComplete} />
           ))}
         </div>
       )}
 
       {!isLoadingFirstPage && items.length > 0 && view === 'board' && (
-        <KanbanBoard
-          tasks={items}
-          onOpen={openDetail}
-          onEdit={openDetail}
-          onDelete={handleDelete}
-          onToggleComplete={handleToggleComplete}
-          onStatusChange={handleStatusChange}
-        />
+        <KanbanBoard tasks={items} onOpen={openDetail} onEdit={openDetail} onDelete={handleDelete} onToggleComplete={handleToggleComplete} onStatusChange={handleStatusChange} />
       )}
 
       {view === 'list' && pagination.totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 pt-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={pagination.page <= 1}
-            onClick={() => handleFilterChange({ page: pagination.page - 1 })}
-          >
-            Previous
-          </Button>
-          <span className="font-mono text-xs text-ink-muted">
-            {pagination.page} / {pagination.totalPages}
-          </span>
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={pagination.page >= pagination.totalPages}
-            onClick={() => handleFilterChange({ page: pagination.page + 1 })}
-          >
-            Next
-          </Button>
+          <Button variant="secondary" size="sm" disabled={pagination.page <= 1} onClick={() => handleFilterChange({ page: pagination.page - 1 })}>Previous</Button>
+          <span className="font-mono text-xs text-ink-muted">{pagination.page} / {pagination.totalPages}</span>
+          <Button variant="secondary" size="sm" disabled={pagination.page >= pagination.totalPages} onClick={() => handleFilterChange({ page: pagination.page + 1 })}>Next</Button>
         </div>
       )}
 

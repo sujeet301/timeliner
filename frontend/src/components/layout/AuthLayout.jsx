@@ -5,15 +5,8 @@ import ThemeToggle from '../common/ThemeToggle';
 export default function AuthLayout({ title, subtitle, children }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg px-4 py-10">
-      {/* Decorative color blobs — purely atmospheric, kept behind everything and out of the tab order */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary opacity-20 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-flame opacity-20 blur-3xl"
-      />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary opacity-20 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-flame opacity-20 blur-3xl" />
 
       <div className="absolute right-4 top-4">
         <ThemeToggle />

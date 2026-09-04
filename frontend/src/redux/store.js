@@ -7,17 +7,9 @@ import uiReducer from './uiSlice';
 import { registerAuthHooks } from '../services/apiClient';
 
 export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    tasks: taskReducer,
-    reminders: reminderReducer,
-    ui: uiReducer,
-  },
+  reducer: { auth: authReducer, tasks: taskReducer, reminders: reminderReducer, ui: uiReducer },
 });
 
-// Let apiClient read the current access token and react to refresh
-// success/failure without importing the store directly (which would create
-// a circular dependency between store.js and apiClient.js).
 registerAuthHooks({
   getAccessToken: () => store.getState().auth.accessToken,
   onTokenRefreshed: (token) => store.dispatch(tokenRefreshed(token)),

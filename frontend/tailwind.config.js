@@ -41,23 +41,15 @@ export default {
         body: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
-      borderRadius: {
-        card: '10px',
-      },
+      borderRadius: { card: '10px' },
       boxShadow: {
         card: '0 1px 2px rgba(0,0,0,0.04), 0 1px 0 rgba(0,0,0,0.03)',
         popover: '0 8px 24px rgba(0,0,0,0.12)',
       },
       keyframes: {
         'fade-in': { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
-        'slide-up': {
-          '0%': { opacity: 0, transform: 'translateY(6px)' },
-          '100%': { opacity: 1, transform: 'translateY(0)' },
-        },
-        shimmer: {
-          '0%': { backgroundPosition: '-400px 0' },
-          '100%': { backgroundPosition: '400px 0' },
-        },
+        'slide-up': { '0%': { opacity: 0, transform: 'translateY(6px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+        shimmer: { '0%': { backgroundPosition: '-400px 0' }, '100%': { backgroundPosition: '400px 0' } },
       },
       animation: {
         'fade-in': 'fade-in 0.15s ease-out',

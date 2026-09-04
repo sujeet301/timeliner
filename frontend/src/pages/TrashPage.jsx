@@ -15,10 +15,7 @@ export default function TrashPage() {
   const { trash, status } = useSelector((s) => s.tasks);
   const [confirmingId, setConfirmingId] = useState(null);
 
-  useEffect(() => {
-    dispatch(fetchTrash());
-  }, [dispatch]);
-
+  useEffect(() => { dispatch(fetchTrash()); }, [dispatch]);
   const isLoading = status === 'loading' && trash.length === 0;
 
   return (
@@ -29,49 +26,27 @@ export default function TrashPage() {
       </div>
 
       {isLoading && <TaskListSkeleton count={3} />}
-
-      {!isLoading && trash.length === 0 && (
-        <EmptyState icon={Trash2} title="Trash is empty" description="Deleted tasks will show up here." />
-      )}
+      {!isLoading && trash.length === 0 && <EmptyState icon={Trash2} title="Trash is empty" description="Deleted tasks will show up here." />}
 
       {trash.length > 0 && (
         <div className="flex flex-col gap-2.5">
           {trash.map((task) => (
-            <div
-              key={task._id}
-              className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
-            >
+            <div key={task._id} className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-ink">{task.title}</p>
                 <div className="mt-1 flex flex-wrap items-center gap-2">
                   <Badge tone={PRIORITY_COLOR[task.priority]}>{task.priority}</Badge>
-                  {task.deletedAt && (
-                    <span className="font-mono text-xs text-ink-muted">
-                      deleted {formatShortDate(task.deletedAt)}
-                    </span>
-                  )}
+                  {task.deletedAt && <span className="font-mono text-xs text-ink-muted">deleted {formatShortDate(task.deletedAt)}</span>}
                 </div>
               </div>
-
               <div className="flex shrink-0 items-center gap-2">
                 <Button size="sm" variant="secondary" onClick={() => dispatch(restoreTask(task._id))}>
                   <RotateCcw size={14} /> Restore
                 </Button>
                 {confirmingId === task._id ? (
                   <>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => {
-                        dispatch(permanentlyDeleteTask(task._id));
-                        setConfirmingId(null);
-                      }}
-                    >
-                      Confirm delete
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setConfirmingId(null)}>
-                      Cancel
-                    </Button>
+                    <Button size="sm" variant="danger" onClick={() => { dispatch(permanentlyDeleteTask(task._id)); setConfirmingId(null); }}>Confirm delete</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setConfirmingId(null)}>Cancel</Button>
                   </>
                 ) : (
                   <Button size="sm" variant="ghost" onClick={() => setConfirmingId(task._id)}>

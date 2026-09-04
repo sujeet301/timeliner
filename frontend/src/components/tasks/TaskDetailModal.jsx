@@ -10,12 +10,7 @@ import ReminderList from '../reminders/ReminderList';
 import Button from '../common/Button';
 import { LineSkeleton } from '../common/Skeletons';
 import { updateTask } from '../../redux/taskSlice';
-import {
-  fetchReminders,
-  createReminder,
-  snoozeReminder,
-  cancelReminder,
-} from '../../redux/reminderSlice';
+import { fetchReminders, createReminder, snoozeReminder, cancelReminder } from '../../redux/reminderSlice';
 
 const TABS = [
   { key: 'details', label: 'Details' },
@@ -33,9 +28,7 @@ export default function TaskDetailModal({ task, open, onClose }) {
   const reminderStatus = useSelector((s) => s.reminders.status);
 
   useEffect(() => {
-    if (open && task && tab === 'reminders') {
-      dispatch(fetchReminders(task._id));
-    }
+    if (open && task && tab === 'reminders') dispatch(fetchReminders(task._id));
   }, [open, task, tab, dispatch]);
 
   useEffect(() => {
@@ -53,7 +46,7 @@ export default function TaskDetailModal({ task, open, onClose }) {
       await dispatch(updateTask({ id: task._id, payload })).unwrap();
       onClose();
     } catch {
-      // errors are surfaced via toast in the thunk
+      // toast surfaced by thunk
     } finally {
       setSavingTask(false);
     }
@@ -78,19 +71,14 @@ export default function TaskDetailModal({ task, open, onClose }) {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={clsx(
-              '-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors',
-              tab === t.key ? 'border-primary text-primary' : 'border-transparent text-ink-muted hover:text-ink'
-            )}
+            className={clsx('-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors', tab === t.key ? 'border-primary text-primary' : 'border-transparent text-ink-muted hover:text-ink')}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      {tab === 'details' && (
-        <TaskForm initialTask={task} onSubmit={handleSaveTask} onCancel={onClose} submitting={savingTask} />
-      )}
+      {tab === 'details' && <TaskForm initialTask={task} onSubmit={handleSaveTask} onCancel={onClose} submitting={savingTask} />}
 
       {tab === 'reminders' && (
         <div className="flex flex-col gap-4">
@@ -99,18 +87,11 @@ export default function TaskDetailModal({ task, open, onClose }) {
               <Plus size={14} /> Add reminder
             </Button>
           )}
-
           {showReminderForm && (
             <div className="rounded-lg border border-border p-3">
-              <ReminderForm
-                task={task}
-                submitting={savingReminder}
-                onSubmit={handleCreateReminder}
-                onCancel={() => setShowReminderForm(false)}
-              />
+              <ReminderForm task={task} submitting={savingReminder} onSubmit={handleCreateReminder} onCancel={() => setShowReminderForm(false)} />
             </div>
           )}
-
           {reminderStatus === 'loading' && !reminders ? (
             <div className="flex flex-col gap-2">
               <LineSkeleton className="h-12 w-full" />

@@ -25,7 +25,7 @@ import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
   const dispatch = useDispatch();
-  const { theme } = useTheme(); // applies the persisted theme class on <html> as soon as the app mounts
+  const { theme } = useTheme();
 
   useEffect(() => {
     dispatch(restoreSession());
@@ -54,12 +54,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
 
-      <ToastContainer
-        position="bottom-right"
-        theme={theme}
-        toastClassName="!rounded-lg !font-body !text-sm"
-        autoClose={4000}
-      />
+      <ToastContainer position="bottom-right" theme={theme} toastClassName="!rounded-lg !font-body !text-sm" autoClose={4000} />
     </>
   );
 }

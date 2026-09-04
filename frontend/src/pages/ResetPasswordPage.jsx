@@ -17,12 +17,7 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({ resolver: zodResolver(resetPasswordSchema) });
+  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(resetPasswordSchema) });
 
   const onSubmit = async ({ password }) => {
     setSubmitting(true);
@@ -39,12 +34,8 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <AuthLayout title="Invalid link">
-        <p className="text-center text-sm text-ink-muted">
-          This password reset link is missing its token. Please request a new one.
-        </p>
-        <Link to="/forgot-password" className="mt-4 block text-center text-sm font-medium text-primary hover:underline">
-          Request a new link
-        </Link>
+        <p className="text-center text-sm text-ink-muted">This password reset link is missing its token. Please request a new one.</p>
+        <Link to="/forgot-password" className="mt-4 block text-center text-sm font-medium text-primary hover:underline">Request a new link</Link>
       </AuthLayout>
     );
   }
@@ -57,9 +48,7 @@ export default function ResetPasswordPage() {
             <CheckCircle2 size={20} />
           </span>
           <p className="text-sm text-ink-muted">Your password has been reset. Please log in again.</p>
-          <Button onClick={() => navigate('/login')} className="mt-2 w-full">
-            Go to login
-          </Button>
+          <Button onClick={() => navigate('/login')} className="mt-2 w-full">Go to login</Button>
         </div>
       </AuthLayout>
     );
@@ -68,23 +57,9 @@ export default function ResetPasswordPage() {
   return (
     <AuthLayout title="Set a new password">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <Input
-          label="New password"
-          id="password"
-          type="password"
-          error={errors.password?.message}
-          {...register('password')}
-        />
-        <Input
-          label="Confirm password"
-          id="confirmPassword"
-          type="password"
-          error={errors.confirmPassword?.message}
-          {...register('confirmPassword')}
-        />
-        <Button type="submit" className="w-full" loading={submitting}>
-          Reset password
-        </Button>
+        <Input label="New password" id="password" type="password" error={errors.password?.message} {...register('password')} />
+        <Input label="Confirm password" id="confirmPassword" type="password" error={errors.confirmPassword?.message} {...register('confirmPassword')} />
+        <Button type="submit" className="w-full" loading={submitting}>Reset password</Button>
       </form>
     </AuthLayout>
   );

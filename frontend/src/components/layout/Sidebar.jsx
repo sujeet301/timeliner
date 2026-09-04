@@ -1,13 +1,12 @@
 // src/components/layout/Sidebar.jsx
 import { NavLink } from 'react-router-dom';
 import clsx from 'clsx';
-import { LayoutList, CalendarDays, BarChart3, Trash2, Settings, X ,Flame } from 'lucide-react';
+import { LayoutList, CalendarDays, BarChart3, Trash2, Settings, X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setMobileNavOpen } from '../../redux/uiSlice';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: LayoutList, end: true },
-  { to: '/leetcode', label: 'LeetCode Reminder', icon: Flame },
   { to: '/calendar', label: 'Calendar', icon: CalendarDays },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/trash', label: 'Trash', icon: Trash2 },
@@ -26,9 +25,7 @@ function NavItems({ onNavigate }) {
           className={({ isActive }) =>
             clsx(
               'flex items-center gap-3 rounded-lg border-l-2 px-3 py-2 text-sm font-medium transition-colors',
-              isActive
-                ? 'border-l-primary bg-primary-soft text-primary'
-                : 'border-l-transparent text-ink-muted hover:bg-surface-alt hover:text-ink'
+              isActive ? 'border-l-primary bg-primary-soft text-primary' : 'border-l-transparent text-ink-muted hover:bg-surface-alt hover:text-ink'
             )
           }
         >
@@ -47,12 +44,10 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Desktop sidebar */}
       <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface py-6 md:flex">
         <NavItems />
       </aside>
 
-      {/* Mobile drawer */}
       {mobileNavOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/40 animate-fade-in" onClick={close} />

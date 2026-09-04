@@ -8,19 +8,10 @@ import RecurrenceBuilder from './RecurrenceBuilder';
 import { reminderSchema } from '../../utils/validationSchemas';
 import { CHANNEL_OPTIONS, OFFSET_UNIT_OPTIONS } from '../../utils/constants';
 
-// Reminders can be created without a task due date (absolute time) or, when
-// the task has one, relative to it via an offset — mirrors the backend's
-// `offset` vs `scheduledTime` split in POST /tasks/:id/reminders.
 export default function ReminderForm({ task, onSubmit, onCancel, submitting }) {
   const hasDueDate = Boolean(task?.dueDate);
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(reminderSchema),
     defaultValues: {
       channel: 'email',
@@ -49,24 +40,18 @@ export default function ReminderForm({ task, onSubmit, onCancel, submitting }) {
         endDate: values.endDate ? new Date(values.endDate).toISOString() : undefined,
       },
     };
-
     if (values.scheduleMode === 'offset') {
       payload.offset = { amount: Number(values.offsetAmount), unit: values.offsetUnit };
     } else {
       payload.scheduledTime = new Date(values.scheduledTime).toISOString();
     }
-
     onSubmit(payload);
   };
 
   return (
     <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
       <Select label="Send via" id="channel" {...register('channel')}>
-        {CHANNEL_OPTIONS.map((c) => (
-          <option key={c.value} value={c.value}>
-            {c.label}
-          </option>
-        ))}
+        {CHANNEL_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
       </Select>
 
       <div className="flex flex-col gap-2">
@@ -76,12 +61,7 @@ export default function ReminderForm({ task, onSubmit, onCancel, submitting }) {
             type="button"
             disabled={!hasDueDate}
             onClick={() => setValue('scheduleMode', 'offset')}
-            className={clsx(
-              'flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40',
-              scheduleMode === 'offset'
-                ? 'border-primary bg-primary-soft text-primary'
-                : 'border-border text-ink-muted hover:text-ink'
-            )}
+            className={clsx('flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40', scheduleMode === 'offset' ? 'border-primary bg-primary-soft text-primary' : 'border-border text-ink-muted hover:text-ink')}
             title={hasDueDate ? '' : 'This task has no due date to be relative to'}
           >
             Relative to due date
@@ -89,12 +69,7 @@ export default function ReminderForm({ task, onSubmit, onCancel, submitting }) {
           <button
             type="button"
             onClick={() => setValue('scheduleMode', 'absolute')}
-            className={clsx(
-              'flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors',
-              scheduleMode === 'absolute'
-                ? 'border-primary bg-primary-soft text-primary'
-                : 'border-border text-ink-muted hover:text-ink'
-            )}
+            className={clsx('flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors', scheduleMode === 'absolute' ? 'border-primary bg-primary-soft text-primary' : 'border-border text-ink-muted hover:text-ink')}
           >
             Specific date &amp; time
           </button>
@@ -103,52 +78,25 @@ export default function ReminderForm({ task, onSubmit, onCancel, submitting }) {
         {scheduleMode === 'offset' ? (
           <div className="flex flex-col gap-1.5">
             <div className="flex items-end gap-2">
-              <Input
-                label="Amount"
-                id="offsetAmount"
-                type="number"
-                min={1}
-                className="w-20 shrink-0"
-                error={errors.offsetAmount?.message}
-                {...register('offsetAmount')}
-              />
+              <Input label="Amount" id="offsetAmount" type="number" min={1} className="w-20 shrink-0" error={errors.offsetAmount?.message} {...register('offsetAmount')} />
               <Select id="offsetUnit" className="mb-[1px] min-w-0 flex-1" {...register('offsetUnit')}>
-                {OFFSET_UNIT_OPTIONS.map((u) => (
-                  <option key={u.value} value={u.value}>
-                    {u.label}
-                  </option>
-                ))}
+                {OFFSET_UNIT_OPTIONS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
               </Select>
             </div>
             <p className="text-xs text-ink-muted">before the task&apos;s due date</p>
           </div>
         ) : (
-          <Input
-            id="scheduledTime"
-            type="datetime-local"
-            error={errors.scheduledTime?.message}
-            {...register('scheduledTime')}
-          />
+          <Input id="scheduledTime" type="datetime-local" error={errors.scheduledTime?.message} {...register('scheduledTime')} />
         )}
       </div>
 
       <RecurrenceBuilder register={register} watch={watch} setValue={setValue} errors={errors} />
 
-      <Textarea
-        label="Custom message (optional)"
-        id="message"
-        placeholder={`Reminder: "${task?.title || 'your task'}" is due soon`}
-        error={errors.message?.message}
-        {...register('message')}
-      />
+      <Textarea label="Custom message (optional)" id="message" placeholder={`Reminder: "${task?.title || 'your task'}" is due soon`} error={errors.message?.message} {...register('message')} />
 
       <div className="mt-1 flex justify-end gap-2">
-        <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit" loading={submitting}>
-          Schedule reminder
-        </Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" loading={submitting}>Schedule reminder</Button>
       </div>
     </form>
   );

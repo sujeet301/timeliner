@@ -25,51 +25,23 @@ export default function FilterBar({ filters, onChange }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <select
-          value={filters.status}
-          onChange={(e) => set({ status: e.target.value })}
-          className="rounded-lg border border-border bg-surface px-2.5 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        >
+        <select value={filters.status} onChange={(e) => set({ status: e.target.value })} className="rounded-lg border border-border bg-surface px-2.5 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
           <option value="">All statuses</option>
-          {STATUS_OPTIONS.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
+          {STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
 
-        <select
-          value={filters.priority}
-          onChange={(e) => set({ priority: e.target.value })}
-          className="rounded-lg border border-border bg-surface px-2.5 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        >
+        <select value={filters.priority} onChange={(e) => set({ priority: e.target.value })} className="rounded-lg border border-border bg-surface px-2.5 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
           <option value="">All priorities</option>
-          {PRIORITY_OPTIONS.map((p) => (
-            <option key={p.value} value={p.value}>
-              {p.label}
-            </option>
-          ))}
+          {PRIORITY_OPTIONS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
         </select>
 
         <div className="flex items-center gap-1 rounded-lg border border-border bg-surface px-2.5 py-2">
           <ArrowUpDown size={14} className="text-ink-muted" />
-          <select
-            value={filters.sortBy}
-            onChange={(e) => set({ sortBy: e.target.value })}
-            className="bg-transparent text-sm text-ink focus:outline-none"
-          >
-            {SORT_OPTIONS.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
+          <select value={filters.sortBy} onChange={(e) => set({ sortBy: e.target.value })} className="bg-transparent text-sm text-ink focus:outline-none">
+            {SORT_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
-          <button
-            onClick={() => set({ order: filters.order === 'asc' ? 'desc' : 'asc' })}
-            className="ml-1 text-xs font-mono text-ink-muted hover:text-ink"
-            title="Toggle sort direction"
-          >
-            {filters.order === 'asc' ? '↑' : '↓'}
+          <button onClick={() => set({ order: filters.order === 'asc' ? 'desc' : 'asc' })} className="ml-1 text-xs font-mono text-ink-muted hover:text-ink" title="Toggle sort direction">
+            {filters.order === 'asc' ? '\u2191' : '\u2193'}
           </button>
         </div>
       </div>

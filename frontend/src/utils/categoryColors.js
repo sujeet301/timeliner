@@ -1,20 +1,13 @@
 // src/utils/categoryColors.js
-//
-// Assigns each category/tag name a consistent color from a small curated
-// palette — the same name always maps to the same color (a simple string
-// hash picks the index), so categories become visually distinguishable at a
-// glance the way subway lines use color, without needing to store a color
-// per category anywhere.
-
 const PALETTE = [
-  { bg: '#e6e6fd', fg: '#5b5bef' }, // indigo
-  { bg: '#ffe4dc', fg: '#e65a3a' }, // flame
-  { bg: '#d8f4e9', fg: '#0f9468' }, // emerald
-  { bg: '#fbecd0', fg: '#c97d0a' }, // amber
-  { bg: '#fde3e3', fg: '#dc3d3d' }, // red
-  { bg: '#dbeafe', fg: '#2563eb' }, // blue
-  { bg: '#fce7f6', fg: '#c0338a' }, // pink
-  { bg: '#e0f2f1', fg: '#0f766e' }, // teal
+  { bg: '#e6e6fd', fg: '#5b5bef' },
+  { bg: '#ffe4dc', fg: '#e65a3a' },
+  { bg: '#d8f4e9', fg: '#0f9468' },
+  { bg: '#fbecd0', fg: '#c97d0a' },
+  { bg: '#fde3e3', fg: '#dc3d3d' },
+  { bg: '#dbeafe', fg: '#2563eb' },
+  { bg: '#fce7f6', fg: '#c0338a' },
+  { bg: '#e0f2f1', fg: '#0f766e' },
 ];
 
 const DARK_PALETTE = [
@@ -32,17 +25,11 @@ function hashString(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i += 1) {
     hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0; // force 32-bit int
+    hash |= 0;
   }
   return Math.abs(hash);
 }
 
-/**
- * Returns { bg, fg } inline style colors for a category/tag label. Pass
- * `isDark` (from useTheme) so the palette stays legible in both themes —
- * these are deliberately plain hex values (not CSS variables) since each
- * label needs its own fixed hue rather than swapping with the site theme.
- */
 export function getCategoryColor(label, isDark = false) {
   if (!label) return isDark ? DARK_PALETTE[0] : PALETTE[0];
   const palette = isDark ? DARK_PALETTE : PALETTE;

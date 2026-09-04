@@ -7,11 +7,7 @@ import { PRIORITY_COLOR } from '../../utils/constants';
 import { getCategoryColor } from '../../utils/categoryColors';
 import { useTheme } from '../../hooks/useTheme';
 
-const PRIORITY_BORDER = {
-  low: 'border-l-success',
-  medium: 'border-l-warn',
-  high: 'border-l-urgent',
-};
+const PRIORITY_BORDER = { low: 'border-l-success', medium: 'border-l-warn', high: 'border-l-urgent' };
 
 export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDelete, draggable, onDragStart }) {
   const { theme } = useTheme();
@@ -25,56 +21,23 @@ export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDel
       draggable={draggable}
       onDragStart={onDragStart}
       onClick={() => onOpen(task)}
-      className={clsx(
-        'group flex cursor-pointer flex-col gap-3 rounded-card border border-l-4 border-border bg-surface p-4 shadow-card transition-shadow hover:shadow-popover',
-        PRIORITY_BORDER[task.priority]
-      )}
+      className={clsx('group flex cursor-pointer flex-col gap-3 rounded-card border border-l-4 border-border bg-surface p-4 shadow-card transition-shadow hover:shadow-popover', PRIORITY_BORDER[task.priority])}
     >
       <div className="flex items-start gap-3">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleComplete(task);
-          }}
-          aria-label={isCompleted ? 'Mark as pending' : 'Mark as completed'}
-          className="mt-0.5 shrink-0 text-primary hover:opacity-80"
-        >
+        <button onClick={(e) => { e.stopPropagation(); onToggleComplete(task); }} aria-label={isCompleted ? 'Mark as pending' : 'Mark as completed'} className="mt-0.5 shrink-0 text-primary hover:opacity-80">
           {isCompleted ? <CheckCircle2 size={20} /> : <Circle size={20} className="text-ink-muted" />}
         </button>
 
         <div className="min-w-0 flex-1">
-          <h3
-            className={clsx(
-              'truncate text-sm font-semibold text-ink',
-              isCompleted && 'text-ink-muted line-through'
-            )}
-          >
-            {task.title}
-          </h3>
-          {task.description && (
-            <p className="mt-0.5 line-clamp-1 text-xs text-ink-muted">{task.description}</p>
-          )}
+          <h3 className={clsx('truncate text-sm font-semibold text-ink', isCompleted && 'text-ink-muted line-through')}>{task.title}</h3>
+          {task.description && <p className="mt-0.5 line-clamp-1 text-xs text-ink-muted">{task.description}</p>}
         </div>
 
         <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(task);
-            }}
-            aria-label="Edit task"
-            className="rounded-md p-1.5 text-ink-muted hover:bg-surface-alt hover:text-ink"
-          >
+          <button onClick={(e) => { e.stopPropagation(); onEdit(task); }} aria-label="Edit task" className="rounded-md p-1.5 text-ink-muted hover:bg-surface-alt hover:text-ink">
             <Pencil size={15} />
           </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(task);
-            }}
-            aria-label="Delete task"
-            className="rounded-md p-1.5 text-ink-muted hover:bg-urgent-soft hover:text-urgent"
-          >
+          <button onClick={(e) => { e.stopPropagation(); onDelete(task); }} aria-label="Delete task" className="rounded-md p-1.5 text-ink-muted hover:bg-urgent-soft hover:text-urgent">
             <Trash2 size={15} />
           </button>
         </div>
@@ -87,11 +50,7 @@ export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDel
             {task.category}
           </Badge>
         )}
-        {task.dueDate && (
-          <Badge tone={urgency.tone} mono>
-            {urgency.label}
-          </Badge>
-        )}
+        {task.dueDate && <Badge tone={urgency.tone} mono>{urgency.label}</Badge>}
         {totalSubtasks > 0 && (
           <span className="inline-flex items-center gap-1 text-xs text-ink-muted">
             <ListChecks size={13} />
@@ -105,11 +64,7 @@ export default function TaskCard({ task, onOpen, onToggleComplete, onEdit, onDel
           </span>
         )}
         {task.tags?.map((tag) => (
-          <Badge
-            key={tag}
-            color={getCategoryColor(tag, theme === 'dark')}
-            className="max-w-[7rem] truncate !px-2 !py-0 text-[11px]"
-          >
+          <Badge key={tag} color={getCategoryColor(tag, theme === 'dark')} className="max-w-[7rem] truncate !px-2 !py-0 text-[11px]">
             #{tag}
           </Badge>
         ))}

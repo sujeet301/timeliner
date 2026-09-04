@@ -18,14 +18,8 @@ export const forgotPasswordSchema = z.object({
 });
 
 export const resetPasswordSchema = z
-  .object({
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+  .object({ password: z.string().min(8, 'Password must be at least 8 characters'), confirmPassword: z.string() })
+  .refine((data) => data.password === data.confirmPassword, { message: 'Passwords do not match', path: ['confirmPassword'] });
 
 export const profileSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100),
@@ -36,9 +30,9 @@ export const taskSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(200),
   description: z.string().max(5000).optional().or(z.literal('')),
   category: z.string().max(60).optional().or(z.literal('')),
-  tags: z.string().optional().or(z.literal('')), // comma-separated in the form, split before submit
+  tags: z.string().optional().or(z.literal('')),
   priority: z.enum(['low', 'medium', 'high']),
-  dueDate: z.string().optional().or(z.literal('')), // datetime-local string
+  dueDate: z.string().optional().or(z.literal('')),
 });
 
 export const reminderSchema = z
@@ -58,11 +52,5 @@ export const reminderSchema = z
     message: 'Enter how long before the due date to send this reminder',
     path: ['offsetAmount'],
   })
-  .refine((data) => data.scheduleMode !== 'absolute' || !!data.scheduledTime, {
-    message: 'Pick a date and time',
-    path: ['scheduledTime'],
-  })
-  .refine((data) => data.repeatType !== 'custom' || !!data.repeatInterval, {
-    message: 'Enter a repeat interval in days',
-    path: ['repeatInterval'],
-  });
+  .refine((data) => data.scheduleMode !== 'absolute' || !!data.scheduledTime, { message: 'Pick a date and time', path: ['scheduledTime'] })
+  .refine((data) => data.repeatType !== 'custom' || !!data.repeatInterval, { message: 'Enter a repeat interval in days', path: ['repeatInterval'] });

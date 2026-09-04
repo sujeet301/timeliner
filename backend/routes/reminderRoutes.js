@@ -6,7 +6,6 @@ const { validate } = require('../middleware/validateMiddleware');
 const reminderCtrl = require('../controllers/reminderController');
 
 const router = express.Router();
-
 router.use(protect);
 
 router.put(
@@ -26,11 +25,7 @@ router.delete('/:id', param('id').isMongoId(), validate, reminderCtrl.deleteRemi
 
 router.patch(
   '/:id/snooze',
-  [
-    param('id').isMongoId(),
-    body('minutes').optional().isInt({ min: 1 }),
-    body('until').optional().isISO8601(),
-  ],
+  [param('id').isMongoId(), body('minutes').optional().isInt({ min: 1 }), body('until').optional().isISO8601()],
   validate,
   reminderCtrl.snoozeReminder
 );

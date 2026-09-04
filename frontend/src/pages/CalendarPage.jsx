@@ -12,8 +12,6 @@ export default function CalendarPage() {
   const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
-    // Pull a wide window of tasks so the month grid isn't limited by the
-    // dashboard's normal page size.
     dispatch(fetchTasks({ page: 1, limit: 300, sortBy: 'dueDate', order: 'asc' }));
   }, [dispatch]);
 
@@ -23,13 +21,7 @@ export default function CalendarPage() {
         <h1 className="font-display text-2xl font-semibold text-ink">Calendar</h1>
         <p className="text-sm text-ink-muted">Everything with a due date, laid out by month.</p>
       </div>
-
-      {status === 'loading' && items.length === 0 ? (
-        <LineSkeleton className="h-96 w-full" />
-      ) : (
-        <CalendarView tasks={items} onOpenTask={setSelectedTask} />
-      )}
-
+      {status === 'loading' && items.length === 0 ? <LineSkeleton className="h-96 w-full" /> : <CalendarView tasks={items} onOpenTask={setSelectedTask} />}
       <TaskDetailModal task={selectedTask} open={Boolean(selectedTask)} onClose={() => setSelectedTask(null)} />
     </div>
   );

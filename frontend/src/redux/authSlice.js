@@ -21,8 +21,6 @@ export const login = createAsyncThunk('auth/login', async (payload, { rejectWith
   }
 });
 
-// `credential` is the Google ID token JWT handed back by Google Identity
-// Services' Sign-In button (see components/auth/GoogleSignInButton.jsx).
 export const googleLogin = createAsyncThunk('auth/googleLogin', async (credential, { rejectWithValue }) => {
   try {
     const { data } = await authService.googleLogin(credential);
@@ -36,22 +34,15 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   try {
     await authService.logout();
   } catch {
-    // Even if the network call fails, we still clear local state below.
+    // still clear local state below
   }
 });
 
-// Called once on app load to see if a valid refresh cookie can silently
-// re-establish a session (so refreshing the page doesn't log the user out).
-//
 // IMPORTANT: apiClient's request interceptor reads the access token from the
 // Redux store (via registerAuthHooks in services/apiClient.js), not from a
-// local variable. A thunk's return value only reaches the store *after* the
-// whole thunk resolves — so if we called authService.me() here using just
-// the local `accessToken` variable, that follow-up request would still go
-// out with whatever (stale/missing) token was in the store, 401, and the
-// session would look like it never got restored at all. Dispatching
-// `tokenRefreshed` immediately makes the new token available to the
-// interceptor in time for the very next request.
+// local variable. A thunk's return value only reaches the store after the
+// whole thunk resolves — so the follow-up /me call here would go out with a
+// stale/missing token unless we dispatch tokenRefreshed immediately.
 export const restoreSession = createAsyncThunk('auth/restoreSession', async (_, { rejectWithValue, dispatch }) => {
   try {
     const { data } = await authService.refreshToken();
@@ -64,47 +55,35 @@ export const restoreSession = createAsyncThunk('auth/restoreSession', async (_, 
   }
 });
 
-export const updateProfile = createAsyncThunk(
-  'auth/updateProfile',
-  async (payload, { rejectWithValue }) => {
-    try {
-      const { data } = await authService.updateProfile(payload);
-      toast.success('Profile updated');
-      return data.data.user;
-    } catch (err) {
-      const message = err.response?.data?.message || 'Could not update profile';
-      toast.error(message);
-      return rejectWithValue(message);
-    }
+export const updateProfile = createAsyncThunk('auth/updateProfile', async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await authService.updateProfile(payload);
+    toast.success('Profile updated');
+    return data.data.user;
+  } catch (err) {
+    const message = err.response?.data?.message || 'Could not update profile';
+    toast.error(message);
+    return rejectWithValue(message);
   }
-);
+});
 
-export const updateLeetcodeSettings = createAsyncThunk(
-  'auth/updateLeetcodeSettings',
-  async (payload, { rejectWithValue }) => {
-    try {
-      const { data } = await authService.updateLeetcodeSettings(payload);
-      toast.success('LeetCode reminder settings saved');
-      return data.data.user;
-    } catch (err) {
-      const message = err.response?.data?.message || 'Could not save LeetCode settings';
-      toast.error(message);
-      return rejectWithValue(message);
-    }
+export const updateLeetcodeSettings = createAsyncThunk('auth/updateLeetcodeSettings', async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await authService.updateLeetcodeSettings(payload);
+    toast.success('LeetCode reminder settings saved');
+    return data.data.user;
+  } catch (err) {
+    const message = err.response?.data?.message || 'Could not save LeetCode settings';
+    toast.error(message);
+    return rejectWithValue(message);
   }
-);
+});
 
 export const updateAccessToken = (token) => ({ type: 'auth/tokenRefreshed', payload: token });
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    user: null,
-    accessToken: null,
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
-    bootstrapping: true, // true until restoreSession has resolved once
-    error: null,
-  },
+  initialState: { user: null, accessToken: null, status: 'idle', bootstrapping: true, error: null },
   reducers: {
     tokenRefreshed: (state, action) => {
       state.accessToken = action.payload;
@@ -119,75 +98,27 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(signup.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(signup.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-      })
-      .addCase(signup.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload;
-      })
-      .addCase(login.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload;
-      })
-      .addCase(googleLogin.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(googleLogin.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-      })
-      .addCase(googleLogin.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload;
-      })
-      .addCase(logout.fulfilled, (state) => {
-        state.user = null;
-        state.accessToken = null;
-      })
-      .addCase(restoreSession.pending, (state) => {
-        state.bootstrapping = true;
-      })
-      .addCase(restoreSession.fulfilled, (state, action) => {
-        state.bootstrapping = false;
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-      })
-      .addCase(restoreSession.rejected, (state) => {
-        state.bootstrapping = false;
-        state.user = null;
-        state.accessToken = null;
-      })
-      .addCase(updateProfile.fulfilled, (state, action) => {
-        state.user = action.payload;
-      })
-      .addCase(updateLeetcodeSettings.fulfilled, (state, action) => {
-        state.user = action.payload;
-      });
+      .addCase(signup.pending, (state) => { state.status = 'loading'; state.error = null; })
+      .addCase(signup.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; state.accessToken = action.payload.accessToken; })
+      .addCase(signup.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
+      .addCase(login.pending, (state) => { state.status = 'loading'; state.error = null; })
+      .addCase(login.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; state.accessToken = action.payload.accessToken; })
+      .addCase(login.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
+      .addCase(googleLogin.pending, (state) => { state.status = 'loading'; state.error = null; })
+      .addCase(googleLogin.fulfilled, (state, action) => { state.status = 'succeeded'; state.user = action.payload.user; state.accessToken = action.payload.accessToken; })
+      .addCase(googleLogin.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; })
+      .addCase(logout.fulfilled, (state) => { state.user = null; state.accessToken = null; })
+      .addCase(restoreSession.pending, (state) => { state.bootstrapping = true; })
+      .addCase(restoreSession.fulfilled, (state, action) => { state.bootstrapping = false; state.user = action.payload.user; state.accessToken = action.payload.accessToken; })
+      .addCase(restoreSession.rejected, (state) => { state.bootstrapping = false; state.user = null; state.accessToken = null; })
+      .addCase(updateProfile.fulfilled, (state, action) => { state.user = action.payload; })
+      .addCase(updateLeetcodeSettings.fulfilled, (state, action) => { state.user = action.payload; });
   },
 });
 
 export const { tokenRefreshed, sessionCleared, setUser } = authSlice.actions;
 export default authSlice.reducer;
 
-// Small helper so components can fire a toast without importing react-toastify everywhere.
 export function notifyError(message) {
   toast.error(message);
 }

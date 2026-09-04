@@ -15,9 +15,7 @@ export function TaskCardSkeleton() {
 export function TaskListSkeleton({ count = 5 }) {
   return (
     <div className="flex flex-col gap-3">
-      {Array.from({ length: count }).map((_, i) => (
-        <TaskCardSkeleton key={i} />
-      ))}
+      {Array.from({ length: count }).map((_, i) => <TaskCardSkeleton key={i} />)}
     </div>
   );
 }

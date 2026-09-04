@@ -9,18 +9,13 @@ function getInitialTheme() {
 
 const uiSlice = createSlice({
   name: 'ui',
-  initialState: {
-    theme: getInitialTheme(),
-    mobileNavOpen: false,
-  },
+  initialState: { theme: getInitialTheme(), mobileNavOpen: false },
   reducers: {
     toggleTheme: (state) => {
       state.theme = state.theme === 'dark' ? 'light' : 'dark';
       window.localStorage.setItem('theme', state.theme);
     },
-    setMobileNavOpen: (state, action) => {
-      state.mobileNavOpen = action.payload;
-    },
+    setMobileNavOpen: (state, action) => { state.mobileNavOpen = action.payload; },
   },
 });
 

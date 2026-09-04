@@ -18,16 +18,10 @@ export default function LoginPage() {
   const location = useLocation();
   const { status, error, accessToken } = useSelector((s) => s.auth);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({ resolver: zodResolver(loginSchema) });
+  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(loginSchema) });
 
   useEffect(() => {
-    if (accessToken) {
-      navigate(location.state?.from?.pathname || '/', { replace: true });
-    }
+    if (accessToken) navigate(location.state?.from?.pathname || '/', { replace: true });
   }, [accessToken, navigate, location]);
 
   const onSubmit = (values) => dispatch(login(values));
@@ -36,33 +30,19 @@ export default function LoginPage() {
     <AuthLayout title="Welcome back" subtitle="Log in to Timeliner">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Input label="Email" id="email" type="email" autoComplete="email" error={errors.email?.message} {...register('email')} />
-        <Input
-          label="Password"
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          error={errors.password?.message}
-          {...register('password')}
-        />
+        <Input label="Password" id="password" type="password" autoComplete="current-password" error={errors.password?.message} {...register('password')} />
         {error && <p className="text-sm text-urgent">{error}</p>}
         <div className="flex justify-end">
-          <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline">
-            Forgot password?
-          </Link>
+          <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline">Forgot password?</Link>
         </div>
-        <Button type="submit" className="w-full" loading={status === 'loading'}>
-          Log in
-        </Button>
+        <Button type="submit" className="w-full" loading={status === 'loading'}>Log in</Button>
       </form>
 
       <OrDivider />
       <GoogleSignInButton />
 
       <p className="mt-5 text-center text-sm text-ink-muted">
-        Don&apos;t have an account?{' '}
-        <Link to="/signup" className="font-medium text-primary hover:underline">
-          Sign up
-        </Link>
+        Don&apos;t have an account? <Link to="/signup" className="font-medium text-primary hover:underline">Sign up</Link>
       </p>
     </AuthLayout>
   );

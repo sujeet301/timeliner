@@ -11,9 +11,7 @@ export default function NotFoundPage() {
       </span>
       <h1 className="font-display text-2xl font-semibold text-ink">Page not found</h1>
       <p className="text-sm text-ink-muted">The page you&apos;re looking for doesn&apos;t exist.</p>
-      <Link to="/">
-        <Button>Back to dashboard</Button>
-      </Link>
+      <Link to="/"><Button>Back to dashboard</Button></Link>
     </div>
   );
 }

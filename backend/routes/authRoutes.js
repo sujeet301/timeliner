@@ -9,7 +9,6 @@ const ctrl = require('../controllers/authController');
 
 const router = express.Router();
 
-// Stricter limiter on auth endpoints to slow down credential-stuffing / brute force.
 const authLimiter = rateLimit({
   windowMs: env.rateLimit.authWindowMin * 60 * 1000,
   max: env.rateLimit.authMax,
@@ -107,10 +106,12 @@ router.put(
   [
     body('username').optional({ nullable: true }).isString().trim(),
     body('enabled').optional().isBoolean(),
-    body('reminderTime')
-      .optional()
+    body('reminderTimes').optional().isArray({ min: 1 }).withMessage('Provide at least one reminder time'),
+    body('reminderTimes.*')
       .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
-      .withMessage('reminderTime must be in 24h HH:mm format'),
+      .withMessage('Each reminder time must be in 24h HH:mm format'),
+    body('activeDays').optional().isArray(),
+    body('activeDays.*').isInt({ min: 0, max: 6 }).withMessage('activeDays values must be 0 (Sun) through 6 (Sat)'),
     body('timezone').optional().isString(),
   ],
   validate,

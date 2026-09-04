@@ -19,38 +19,28 @@ const reminderRoutes = require('./routes/reminderRoutes');
 
 const app = express();
 
-// ---------- Security & parsing middleware ----------
 app.use(helmet());
 app.use(
   cors({
     origin(origin, callback) {
-      // No Origin header at all (curl, server-to-server, some mobile
-      // clients) — nothing to check against, so let it through.
       if (!origin) return callback(null, true);
       if (env.clientOrigins.includes(origin)) return callback(null, true);
       return callback(new Error(`CORS: origin "${origin}" is not in CLIENT_ORIGIN`));
     },
-    credentials: true, // required so the httpOnly refresh-token cookie is sent/received
+    credentials: true,
   })
 );
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(mongoSanitize()); // strips keys starting with $ or containing . from req.body/query/params
+app.use(mongoSanitize());
 app.use(morgan(env.isProduction ? 'combined' : 'dev'));
 
-// General API rate limit (auth routes additionally have their own, stricter limiter).
 app.use(
   '/api',
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 300,
-    standardHeaders: true,
-    legacyHeaders: false,
-  })
+  rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false })
 );
 
-// ---------- Routes ----------
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'API is healthy', timestamp: new Date().toISOString() });
 });
@@ -59,24 +49,19 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/reminders', reminderRoutes);
 
-// ---------- Error handling (must be last) ----------
 app.use(notFound);
 app.use(errorHandler);
 
-// ---------- Boot ----------
 async function start() {
   await connectDB();
   startScheduler();
   startLeetcodeReminderScheduler();
 
   const server = app.listen(env.port, () => {
-    // eslint-disable-next-line no-console
     console.log(`[server] Running in ${env.nodeEnv} mode on port ${env.port}`);
   });
 
-  // Graceful shutdown
   const shutdown = (signal) => {
-    // eslint-disable-next-line no-console
     console.log(`[server] ${signal} received, shutting down gracefully...`);
     server.close(() => process.exit(0));
   };

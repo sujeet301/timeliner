@@ -13,12 +13,7 @@ import { forgotPasswordSchema } from '../utils/validationSchemas';
 export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({ resolver: zodResolver(forgotPasswordSchema) });
+  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(forgotPasswordSchema) });
 
   const onSubmit = async ({ email }) => {
     setSubmitting(true);
@@ -26,7 +21,7 @@ export default function ForgotPasswordPage() {
       await authService.forgotPassword(email);
     } finally {
       setSubmitting(false);
-      setSent(true); // shown regardless, matching the backend's non-enumerating response
+      setSent(true);
     }
   };
 
@@ -37,12 +32,8 @@ export default function ForgotPasswordPage() {
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-soft text-primary">
             <MailCheck size={20} />
           </span>
-          <p className="text-sm text-ink-muted">
-            If an account exists for that email, we&apos;ve sent a link to reset your password.
-          </p>
-          <Link to="/login" className="text-sm font-medium text-primary hover:underline">
-            Back to log in
-          </Link>
+          <p className="text-sm text-ink-muted">If an account exists for that email, we&apos;ve sent a link to reset your password.</p>
+          <Link to="/login" className="text-sm font-medium text-primary hover:underline">Back to log in</Link>
         </div>
       </AuthLayout>
     );
@@ -52,14 +43,10 @@ export default function ForgotPasswordPage() {
     <AuthLayout title="Reset your password" subtitle="We'll email you a reset link">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Input label="Email" id="email" type="email" error={errors.email?.message} {...register('email')} />
-        <Button type="submit" className="w-full" loading={submitting}>
-          Send reset link
-        </Button>
+        <Button type="submit" className="w-full" loading={submitting}>Send reset link</Button>
       </form>
       <p className="mt-5 text-center text-sm text-ink-muted">
-        <Link to="/login" className="font-medium text-primary hover:underline">
-          Back to log in
-        </Link>
+        <Link to="/login" className="font-medium text-primary hover:underline">Back to log in</Link>
       </p>
     </AuthLayout>
   );

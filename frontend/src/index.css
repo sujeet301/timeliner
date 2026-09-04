@@ -5,11 +5,9 @@
 /* ==========================================================================
    Design tokens
    Concept: a timetable / departure-board reading of a task planner, colored
-   like a transit line map — bold, distinct hues used the way subway lines
-   use color to be told apart at a glance, rather than a muted single-accent
-   palette. Due dates and countdowns are set in mono numerals like a
-   schedule board, headings in a technical grotesk, body copy in a plain
-   humanist sans.
+   like a transit line map — bold, distinct hues rather than a single muted
+   accent. Due dates/countdowns are set in mono numerals like a schedule
+   board, headings in a technical grotesk, body copy in a plain sans.
    ========================================================================== */
 :root {
   --color-bg: #f5f5fc;
@@ -32,8 +30,6 @@
   --color-success: #12a878;
   --color-success-soft: #d8f4e9;
 
-  /* "Flame" — the streak/highlight accent, used for the LeetCode reminder
-     and other places that want a warm pop against the cool indigo primary. */
   --color-flame: #ff6b4a;
   --color-flame-soft: #ffe4dc;
 }
@@ -63,17 +59,13 @@
   --color-flame-soft: #3a2318;
 }
 
-* {
-  border-color: var(--color-border);
-}
+* { border-color: var(--color-border); }
 
 html {
   color-scheme: light;
   overflow-x: hidden;
 }
-html.dark {
-  color-scheme: dark;
-}
+html.dark { color-scheme: dark; }
 
 body {
   background-color: var(--color-bg);
@@ -84,15 +76,11 @@ body {
   max-width: 100vw;
 }
 
-h1,
-h2,
-h3,
-.font-display {
+h1, h2, h3, .font-display {
   font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.01em;
 }
 
-/* Visible keyboard focus everywhere — accessibility floor, not decoration. */
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
@@ -100,9 +88,7 @@ h3,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
@@ -116,21 +102,9 @@ h3,
 
 /* Shimmer skeleton */
 .skeleton {
-  background-image: linear-gradient(
-    90deg,
-    var(--color-surface-alt) 0px,
-    var(--color-border) 40px,
-    var(--color-surface-alt) 80px
-  );
+  background-image: linear-gradient(90deg, var(--color-surface-alt) 0px, var(--color-border) 40px, var(--color-surface-alt) 80px);
   background-size: 800px 100%;
 }
 
-/* Thin, timetable-style scrollbars */
-.thin-scroll::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.thin-scroll::-webkit-scrollbar-thumb {
-  background-color: var(--color-border);
-  border-radius: 8px;
-}
+.thin-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.thin-scroll::-webkit-scrollbar-thumb { background-color: var(--color-border); border-radius: 8px; }

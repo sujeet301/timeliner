@@ -8,14 +8,7 @@ import { formatDueDate } from '../../utils/dateHelpers';
 import { WEEKDAYS } from '../../utils/constants';
 
 const CHANNEL_ICON = { email: Mail, sms: MessageSquare, both: Bell, push: Bell };
-
-const STATUS_TONE = {
-  pending: 'primary',
-  sent: 'success',
-  failed: 'urgent',
-  cancelled: 'muted',
-  snoozed: 'warn',
-};
+const STATUS_TONE = { pending: 'primary', sent: 'success', failed: 'urgent', cancelled: 'muted', snoozed: 'warn' };
 
 function repeatSummary(repeat) {
   if (!repeat || repeat.type === 'none') return 'Does not repeat';
@@ -42,13 +35,7 @@ export default function ReminderList({ reminders, onSnooze, onCancel }) {
   const [openSnoozeFor, setOpenSnoozeFor] = useState(null);
 
   if (!reminders || reminders.length === 0) {
-    return (
-      <EmptyState
-        icon={BellOff}
-        title="No reminders yet"
-        description="Add one so you don't have to remember this yourself."
-      />
-    );
+    return <EmptyState icon={BellOff} title="No reminders yet" description="Add one so you don't have to remember this yourself." />;
   }
 
   return (
@@ -56,7 +43,6 @@ export default function ReminderList({ reminders, onSnooze, onCancel }) {
       {reminders.map((reminder) => {
         const Icon = CHANNEL_ICON[reminder.channel] || Bell;
         const isActionable = reminder.status === 'pending' || reminder.status === 'snoozed';
-
         return (
           <li key={reminder._id} className="rounded-lg border border-border bg-surface-alt/40 p-3">
             <div className="flex items-start justify-between gap-3">
@@ -66,12 +52,8 @@ export default function ReminderList({ reminders, onSnooze, onCancel }) {
                 </span>
                 <div className="min-w-0">
                   <p className="font-mono text-sm text-ink">{formatDueDate(reminder.nextTriggerAt)}</p>
-                  <p className="mt-0.5 flex items-center gap-1 text-xs text-ink-muted">
-                    <Repeat size={11} /> {repeatSummary(reminder.repeat)}
-                  </p>
-                  {reminder.message && (
-                    <p className="mt-1 text-xs text-ink-muted italic">&ldquo;{reminder.message}&rdquo;</p>
-                  )}
+                  <p className="mt-0.5 flex items-center gap-1 text-xs text-ink-muted"><Repeat size={11} /> {repeatSummary(reminder.repeat)}</p>
+                  {reminder.message && <p className="mt-1 text-xs text-ink-muted italic">&ldquo;{reminder.message}&rdquo;</p>}
                 </div>
               </div>
               <Badge tone={STATUS_TONE[reminder.status]}>{reminder.status}</Badge>
@@ -82,21 +64,11 @@ export default function ReminderList({ reminders, onSnooze, onCancel }) {
                 {openSnoozeFor === reminder._id ? (
                   <>
                     {SNOOZE_PRESETS.map((p) => (
-                      <Button
-                        key={p.label}
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {
-                          onSnooze(reminder._id, { minutes: p.minutes });
-                          setOpenSnoozeFor(null);
-                        }}
-                      >
+                      <Button key={p.label} size="sm" variant="secondary" onClick={() => { onSnooze(reminder._id, { minutes: p.minutes }); setOpenSnoozeFor(null); }}>
                         {p.label}
                       </Button>
                     ))}
-                    <Button size="sm" variant="ghost" onClick={() => setOpenSnoozeFor(null)}>
-                      Cancel
-                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setOpenSnoozeFor(null)}>Cancel</Button>
                   </>
                 ) : (
                   <>

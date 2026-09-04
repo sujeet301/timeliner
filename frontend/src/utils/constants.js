@@ -42,8 +42,4 @@ export const WEEKDAYS = [
   { value: 6, label: 'Sat' },
 ];
 
-export const PRIORITY_COLOR = {
-  low: 'success',
-  medium: 'warn',
-  high: 'urgent',
-};
+export const PRIORITY_COLOR = { low: 'success', medium: 'warn', high: 'urgent' };
