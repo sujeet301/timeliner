@@ -1,7 +1,7 @@
 // src/components/layout/Sidebar.jsx
 import { NavLink } from 'react-router-dom';
 import clsx from 'clsx';
-import { LayoutList, CalendarDays, BarChart3, Trash2, Settings, X } from 'lucide-react';
+import { LayoutList, CalendarDays, BarChart3, Trash2, Settings, X ,Flame} from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setMobileNavOpen } from '../../redux/uiSlice';
 
