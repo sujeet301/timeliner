@@ -7,7 +7,7 @@ import { setMobileNavOpen } from '../../redux/uiSlice';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: LayoutList, end: true },
-  { to: '/Leetcode-Reminder', label: 'LeetCode', icon: Flame },
+  { to: '/leetcode', label: 'Leetcode-Reminder', icon: Flame },
   { to: '/calendar', label: 'Calendar', icon: CalendarDays },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/trash', label: 'Trash', icon: Trash2 },
